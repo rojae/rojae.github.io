@@ -25,3 +25,25 @@ package-lock.json
 # Misc
 _sass/vendors
 assets/js/dist
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Jekyll
+_site/
+.jekyll-cache/
+.sass-cache/
+*.gem
+*.rbc
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+
+# Environment
+.env
