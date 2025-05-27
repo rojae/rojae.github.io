@@ -6,7 +6,7 @@ categories: [design-pattern]
 tags: [java, design-pattern, factory-pattern]
 mermaid: true
 image:
-  path: /assets/img/posts/messaging_system.png
+  path: /assets/img/posts/2025-05-27-design-pattern-intro/messaging_system.png
 ---
 
 # 서비스가 커질수록 필요한 설계 패턴 – 메시징 시스템 예제 중심으로

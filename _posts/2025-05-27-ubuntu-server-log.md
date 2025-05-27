@@ -6,7 +6,7 @@ categories: [infra]
 tags: [infra, ubuntu]
 mermaid: true
 image:
-  path: /assets/img/posts/ubuntu.png
+  path: /assets/img/posts/2025-05-27-ubuntu-server-log/ubuntu.png
 ---
 # 우분투 서버 로그 확인 방법
 
