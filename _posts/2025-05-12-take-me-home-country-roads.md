@@ -7,7 +7,7 @@ tags: [life]
 image:
   path: /assets/img/posts/2025-05-12-take-me-home-country-roads/img.webp
 ---
-
+# 자바공화국에서 낭만을 꿈꾼다 (Take me home, Country roads)
 > 낭만의 도시에서 살았으나,  
 > _코딩테스트(알고리즘)도 java, 개발공부도 java, 회사에서도 java_
 
