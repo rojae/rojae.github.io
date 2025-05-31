@@ -3,7 +3,7 @@ title: 서비스가 커질수록 필요한 설계 패턴 – 메시징 시스템
 author: rojae
 date: 2025-05-27 03:30:00 +0900
 categories: [design-pattern]
-tags: [java, design-pattern, factory-pattern]
+tags: [java, design-pattern]
 mermaid: true
 image:
   path: /assets/img/posts/2025-05-27-design-pattern-intro/messaging_system.png

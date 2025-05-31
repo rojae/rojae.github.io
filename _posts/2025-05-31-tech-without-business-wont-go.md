@@ -1,7 +1,7 @@
 ---
 title: 비즈니스 없는 기술은 나아갈 수 없다 – Tech Without Business Won’t Go
 author: rojae
-date: 2025-05-31 00:00:00 +0900
+date: 2025-05-31 16:30:00 +0900
 categories: [tech-talk]
 tags: [design-pattern, scalability, maintainability, business]
 image:
@@ -87,8 +87,8 @@ C#, ASP.NET, WinForm 기반의 레거시 시스템이었습니다.
 기술로 인해 비즈니스가 확장되고,  
 그 기술을 책임지는 것이 우리가 말하는 서비스 개발자의 역할이라는 것을 점점 더 느꼈습니다.
 
-_사실 쉽지 않은 과정이고, 많은 노력이 필요합니다.  
-하지만 어려운 일을 해냈기에 성장의 발판도 되는 것 같습니다.
+.._사실 쉽지 않은 과정이고, 많은 노력이 필요합니다._
+_하지만 어려운 일을 해냈기에 성장의 발판도 되는 것 같습니다._
 
 ---
 
