@@ -2,6 +2,7 @@
 title: Factory Pattern - 슬쩍 팩토리에서 처리하기 (메시징 서비스를 예제로)
 author: rojae
 date: 2025-05-31 19:10:00 +0900
+published: true
 categories: [design-pattern]
 tags: [java, design-pattern, factory-pattern]
 mermaid: true
