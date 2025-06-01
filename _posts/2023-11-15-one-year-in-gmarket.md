@@ -1,8 +1,8 @@
 ---
-title: 역삼 GFC에서 벌써 1년
+title: 역삼 GFC에서 1년 - 벌써 일년
 date: 2023-11-15 19:00:00 +0900
-categories: [career]
-tags: [career, retrospective, 지마켓, 서버개발]
+categories: [life]
+tags: [life, career, retrospective, 지마켓, 서버개발]
 image:
   path: /assets/img/posts/2023-11-15-one-year-in-gmarket/one-year-in-gmarket.jpeg
 ---
