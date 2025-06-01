@@ -8,6 +8,11 @@ mermaid: true
 image:
   path: /assets/img/posts/2025-05-27-ubuntu-server-log/ubuntu.png
 ---
+
+> 이 글은 과거 블로그에서 옮겨왔습니다.
+> [출처: 로재의 개발 일기](https://redcoder.tistory.com/347)
+{: .prompt-info }
+
 # 우분투 서버 로그 확인 방법
 
 우분투에서는 대부분의 로그 파일이 `/var/log` 디렉토리에 저장됩니다. 아래는 자주 확인하는 로그 파일들과 명령어입니다.
