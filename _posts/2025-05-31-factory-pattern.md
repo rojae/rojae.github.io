@@ -1,10 +1,10 @@
 ---
-title: Factory Pattern - 슬쩍 팩토리에서 처리하기 (메시징 서비스를 예제로)
+title: (생성패턴) Factory Pattern - 슬쩍 팩토리에서 처리하기 (메시징 서비스를 예제로)
 author: rojae
 date: 2025-05-31 19:10:00 +0900
 published: true
 categories: [design-pattern]
-tags: [java, design-pattern, factory-pattern]
+tags: [java, design-pattern, creational-patterns, factory-pattern]
 mermaid: true
 image:
   path: /assets/img/posts/2025-05-31-factory-pattern/factory-pattern.png

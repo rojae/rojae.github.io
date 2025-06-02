@@ -1,10 +1,10 @@
 ---
-title: Strategy Pattern - 발송 후처리 전략 설립하기 (메시징 서비스를 예제로)
+title: (구조패턴) Strategy Pattern - 발송 후처리 전략 설립하기 (메시징 서비스를 예제로)
 author: rojae
 date: 2025-06-01 19:29:00 +0900
 published: true
 categories: [design-pattern]
-tags: [java, design-pattern, strategy-pattern]
+tags: [java, design-pattern, structural-pattern, strategy-pattern]
 mermaid: true
 image:
     path: /assets/img/posts/2025-06-01-strategy-pattern/strategy-pattern.png
