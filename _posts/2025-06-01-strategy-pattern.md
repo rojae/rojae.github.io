@@ -14,7 +14,7 @@ image:
 유연하게 처리할 수 있는 구조를 소개했습니다.
 
 - 👉 [서비스가 커질수록 필요한 설계 패턴 – 메시징 시스템 예제 중심으로](/posts/design-pattern-intro)
-- 👉 [Factory Pattern - 슬쩍 팩토리에서 처리하기](/posts/2025-05-31-factory-pattern)
+- 👉 [Factory Pattern - 슬쩍 팩토리에서 처리하기](/posts/factory-pattern)
 
 이번 글에서는 그 다음 단계로, **발송 이후의 후처리 로직**까지 통합하는 설계를 소개합니다.  
 바로 `CompositeSenderService`입니다.
