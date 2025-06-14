@@ -1,10 +1,10 @@
 ---
-title: (행위 패턴) Observer Pattern - 옵저버 패턴
+title: (행위 패턴) Observer Pattern - 메시지 발송 처리 부분 추가하기
 author: rojae
-date: 2025-06-15 02:29:30 +0900
-published: true
+date: 2025-06-15 02:39:30 +0900
+published: false
 categories: [design-pattern]
-tags: [java, design-pattern, behavioral-pattern, observer-pattern]
+tags: [java, design-pattern, behavioral-pattern, chain-of-responsibility]
 mermaid: true
 image:
   path: /assets/img/posts/2025-06-14-chain-of-responsibility-pattern/chain-of-responsibility.png
