@@ -32,3 +32,8 @@ bundle install
 
 bundle exec jekyll serve
 ```
+
+### prompt
+```
+tip, info, warning, and danger
+```
