@@ -11,6 +11,7 @@ image:
 ---
 > 운영 중인 서비스에서 IP 변경이 어떻게 장애로 이어질 수 있었는지, 이를 해결하며 얻은 인사이트를 정리해 둡니다.
 > + 영문 버전은 [Medium](https://medium.com/p/0b1cadd08ba2/edit)에서 확인하실 수 있습니다.
+> + 샘플코드는 [feign-dns-lookup-test](https://github.com/rojae/feign-dns-lookup-test)에서 확인하실 수 있습니다.
 {: .prompt-info }
 
 ---
