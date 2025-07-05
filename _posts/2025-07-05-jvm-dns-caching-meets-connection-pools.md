@@ -113,7 +113,7 @@ Java Core에 포함된 `InetAddress.java`가 DNS(호스트)를 IP 주소로 해�
 ---
 
 ## **"networkaddress.cache.* in JVM"**
-- 1. *DNS 해석이 매번 정상적으로 동작하지 않았다.*
+> **1.** *DNS 해석이 매번 정상적으로 동작하지 않았다.*
 → 답은 `/java/security` 파일(JVM Option)에 있었다.
 
 대부분의 `Java API 통신 라이브러리`는 **Java Core의 DNS 해석 메커니즘**을 그대로 사용한다. 
@@ -125,8 +125,8 @@ Java Core에 포함된 `InetAddress.java`가 DNS(호스트)를 IP 주소로 해�
 
 ---
 
-## **"HTTP Connection Pool Considerations"**
-- 2. *InetAddress.java 안에 있는 리졸버가 새 IP를 안정적으로 가져오지 못했다. 통신 실패가 발생한 이후에도 계속 같은 IP로만 연결을 시도했다.*
+## **"HTTP Connection Pool을 고려해보자"**
+> **2.** *InetAddress.java 안에 있는 리졸버가 새 IP를 안정적으로 가져오지 못했다. 통신 실패가 발생한 이후에도 계속 같은 IP로만 연결을 시도했다.*
 → 답은 Http Connection Pool의 설정이 잘못되어 있었기 때문이다.
 
 요청서버(`checkout-server`)는 `spring-cloud-feign`을 사용하고 있었고 아래와 같은 방식이였다.
