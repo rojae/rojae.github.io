@@ -17,6 +17,7 @@ Java 기반의 만 5년차 백엔드 서버 개발자로서, 커머스 도메인
 
 - GitHub: [github.com/rojae](https://github.com/rojae)
 - 기술 블로그 (구): [redcoder.tistory.com](https://redcoder.tistory.com/)
+- 기술 블로그 (영문): [medium.com/@jaethon96](https://medium.com/@jaethon96) 
 - 이력서: [Rallit 프로필 보기](https://www.rallit.com/hub/resumes/781874/%EC%98%A4%EC%9E%AC%EC%84%B1)
 
 ---
