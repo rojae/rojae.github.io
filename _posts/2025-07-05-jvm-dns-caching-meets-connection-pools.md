@@ -89,7 +89,7 @@ DNS 레코드는 멀쩡해 보여도, 그 때문에 체크아웃 서비스가 �
 ## **"Java에서 DNS가 어떻게 해석되는가?"**
 <figure style="text-align: center;">
   <img 
-    src="/assets/img/posts/2025-07-05-jvm-dns-caching-meets-connection-pools/InetAddress.png" 
+    src="/assets/img/posts/2025-07-05-jvm-dns-caching-meets-connection-pools/inetAddress.png" 
     alt="InetAddress.java" 
     width="650" 
     style="border-radius: 8px;">
