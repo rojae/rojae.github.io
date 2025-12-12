@@ -119,6 +119,8 @@ public enum NotifyChannelType {
 
 ### SenderChannelFactory – 전략 반환
 
+- 참고) Enum을 사용할때는 HashMap보다 EnumMap이 성능과 유지 목적으로 장점이 있다.
+
 ```java
 @Component
 public class SenderChannelFactory {
