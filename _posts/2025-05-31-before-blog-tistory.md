@@ -5,6 +5,8 @@ date: 2025-05-31 00:00:00 +0900
 published: true
 categories: [일상]
 tags: [블로그, github-pages, jekyll]
+image:
+  path: /assets/img/posts/2025-05-31-before-blog-tistory/tistory.png
 ---
 
 # 티스토리에서 도망치다.
