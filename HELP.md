@@ -31,6 +31,9 @@ cd 블로그테마
 bundle install
 
 bundle exec jekyll serve
+
+# live mode
+bundle exec jekyll serve --livereload
 ```
 
 ### prompt
