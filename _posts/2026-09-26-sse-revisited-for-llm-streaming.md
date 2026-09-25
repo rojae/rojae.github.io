@@ -114,6 +114,39 @@ data: {"t":"는"}
 | 로그 | stdout에 찍는 순간 프로토콜이 깨짐. stderr로만 | 응답 본문과 로그가 분리되어 있음 |
 | 쓰이는 곳 | 로컬 MCP 서버, 에디터 플러그인, LSP | 원격 MCP 서버, LLM API 스트리밍 |
 
+같은 JSON 한 줄이 두 경로를 어떻게 지나가는지 그려 보면 차이가 분명해집니다.
+
+```mermaid
+flowchart TB
+    subgraph STDIO["stdio 경로 (로컬)"]
+        direction TB
+        H["호스트 프로세스<br/>(Claude Code, IDE)"]
+        H -- "① spawn" --> P["자식 프로세스<br/>(MCP 서버)"]
+        H -- "② stdin 에 한 줄<br/>{jsonrpc...}\n" --> P
+        P -- "③ stdout 에 한 줄<br/>{jsonrpc...}\n" --> H
+        P -. "로그는 stderr 로만" .-> L["터미널 / 파일"]
+        P -- "④ exit → stdin EOF" --> H
+    end
+
+    subgraph HTTP["SSE 경로 (원격)"]
+        direction TB
+        B["브라우저 / 클라이언트"]
+        B -- "① GET + Authorization" --> LB["로드밸런서"]
+        LB --> NG["nginx<br/>(buffer, gzip, timeout)"]
+        NG --> S["애플리케이션 서버"]
+        S -- "② data: {...}\n\n" --> NG
+        NG -- "③ 청크 전달 (또는 보류)" --> LB
+        LB --> B
+        B -. "④ 끊기면 Last-Event-ID 로 재접속" .-> LB
+    end
+
+    style STDIO fill:#f8fafc,stroke:#94a3b8
+    style HTTP fill:#f0f9ff,stroke:#38bdf8
+    style NG fill:#fee2e2,stroke:#ef4444
+```
+
+왼쪽은 중간에 아무것도 없습니다. 대신 stdout이 곧 프로토콜이라 `System.out.println` 한 줄이 통신을 깨뜨립니다. 오른쪽은 인증과 재접속을 HTTP가 공짜로 주는 대신, 빨간 상자(nginx)가 응답을 잡고 있을 수 있습니다. 이 글의 5번 절이 정확히 그 상자 이야기입니다.
+
 stdio는 프로세스 하나가 곧 세션이라 단순하고 빠르지만, 원격으로 보낼 수 없고 로그 한 줄이 통신을 깨뜨립니다. SSE는 네트워크를 타는 대신 그 앞뒤에 낀 장비를 모두 신경 써야 합니다. MCP가 로컬은 stdio, 원격은 Streamable HTTP(내부적으로 SSE)로 나눈 이유가 이것입니다. stdio 쪽 이야기는 3편에서 프로세스를 직접 띄우고 파이프로 JSON을 넣어 가며 다루겠습니다.
 
 ---
@@ -211,6 +244,28 @@ curl -sN https://api.orcarouter.ai/v1/chat/completions \
   </figcaption>
 </figure>
 
+스트림 하나가 시작부터 끝까지 어떤 청크로 이루어지는지 시간순으로 그리면 이렇습니다.
+
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 480, "nodeSpacing": 30, "rankSpacing": 36}}}%%
+flowchart TB
+    REQ["POST /chat/completions<br/>stream: true"] --> W["대기 (TTFT 1.27s)<br/>아무 바이트도 오지 않음"]
+    W --> R1["reasoning_content 청크 × 16<br/>content 는 빈 문자열 → 숨긴다"]
+    R1 --> C1["content 청크 × 71<br/>'SS' 'E' '(' 'Server' ... → 내보낸다"]
+    C1 --> FIN["finish_reason: stop 청크<br/>+ usage ①"]
+    FIN --> US["choices: [] 청크<br/>+ usage ② (①과 같은 값) → 한 번만 센다"]
+    US --> DONE["data: [DONE]<br/>JSON 이 아님 → 파싱하지 않는다"]
+
+    style W fill:#f1f5f9,stroke:#94a3b8
+    style R1 fill:#fef3c7,stroke:#f59e0b
+    style C1 fill:#dcfce7,stroke:#22c55e
+    style FIN fill:#e0f2fe,stroke:#0ea5e9
+    style US fill:#e0f2fe,stroke:#0ea5e9
+    style DONE fill:#fee2e2,stroke:#ef4444
+```
+
+프록시가 할 일이 이 그림에 다 있습니다. 노란 구간은 숨기고, 초록 구간만 내보내고, 파란 구간은 한 번만 세고, 빨간 구간은 JSON으로 파싱하지 않는 것입니다.
+
 원문에서 눈에 띄는 것들을 짚어 보겠습니다.
 
 - **`curl -N`이 필수입니다.** curl은 기본적으로 출력을 버퍼링하기 때문에 `-N`(`--no-buffer`)이 없으면 curl 자체가 "한꺼번에 도착"을 만들어 냅니다.
@@ -282,6 +337,38 @@ dependencies {
 | 코드 모양 | 별도 스레드에서 `emitter.send()` 반복 호출 | 업스트림 `Flux`를 `map`해서 반환 |
 | 백프레셔 | 없음. 클라이언트가 느리면 서버 버퍼가 쌓임 | Reactor가 처리 |
 | 학습 비용 | 낮음 | 높음. 디버깅이 어려움 |
+
+동시 스트림이 늘어날 때 스레드가 어떻게 쓰이는지 그려 보면 차이가 보입니다.
+
+```mermaid
+flowchart LR
+    subgraph MVC["Spring MVC + SseEmitter"]
+        direction LR
+        R1["요청 1"] --> T1["스레드 A<br/>RestClient.read() 블로킹"] -- "emitter.send()" --> E1["SseEmitter 1"]
+        R2["요청 2"] --> T2["스레드 B<br/>RestClient.read() 블로킹"] -- "emitter.send()" --> E2["SseEmitter 2"]
+        R3["요청 3"] --> T3["스레드 C<br/>RestClient.read() 블로킹"] -- "emitter.send()" --> E3["SseEmitter 3"]
+        T1 & T2 & T3 -. "토큰 올 때까지 대기 = 점유" .-> U1["업스트림 LLM API"]
+    end
+
+    style T1 fill:#fee2e2,stroke:#ef4444
+    style T2 fill:#fee2e2,stroke:#ef4444
+    style T3 fill:#fee2e2,stroke:#ef4444
+```
+
+```mermaid
+flowchart LR
+    subgraph FLUX["Spring WebFlux + Flux"]
+        direction LR
+        Q1["요청 1"] & Q2["요청 2"] & Q3["요청 3"] --> EL["이벤트 루프 스레드 1~N<br/>(CPU 코어 수만큼, 스트림 수와 무관)"]
+        EL -- "청크 도착 시에만 깨어남" --> U2["업스트림 LLM API"]
+        U2 -- "onNext(chunk)" --> EL
+        EL -- "map → ServerSentEvent" --> W["응답 소켓 1, 2, 3"]
+    end
+
+    style EL fill:#dcfce7,stroke:#22c55e
+```
+
+MVC 쪽 빨간 상자는 스트림 수만큼 늘어납니다. 토큰이 오지 않는 1초 동안에도 그 스레드는 `read()`에 묶여 있습니다. WebFlux 쪽 초록 상자는 스트림이 3개든 3,000개든 개수가 같고, 업스트림에서 바이트가 도착했을 때만 잠깐 일합니다.
 
 LLM 프록시는 "요청 하나가 몇 초 동안 열려 있고, 그동안 업스트림을 계속 읽는" 워크로드입니다. 이 읽기가 블로킹이면 동시 사용자 수만큼 스레드가 잠깁니다. 그래서 WebFlux를 골랐습니다. 이미 MVC 기반 서비스라면 `SseEmitter` + 가상 스레드 조합도 충분히 현실적인 답입니다. 중요한 건 프레임워크가 아니라 **업스트림 읽기가 블로킹인지 아닌지**입니다.
 
@@ -461,6 +548,39 @@ SSE 명세는 `data:` 뒤에 공백이 정확히 한 칸 있으면 그것을 구
 
 Spring의 `ServerSentEvent`는 `data:` 뒤에 공백 없이 값을 붙입니다. 그러니 `" 서버가"`를 그대로 넣으면 `data: 서버가`가 되고, 정확히 규칙에 걸립니다.
 
+브라우저의 `EventSource` 파서가 줄 하나를 처리하는 순서를 그리면 어디서 공백이 사라지는지 보입니다.
+
+```mermaid
+flowchart TD
+    L["줄 하나 읽음"] --> E{"빈 줄?"}
+    E -- "예" --> D["이벤트 dispatch<br/>(data 버퍼 비움)"]
+    E -- "아니오" --> C{"':' 위치"}
+    C -- "없음" --> F1["필드명 = 줄 전체, 값 = ''"]
+    C -- "있음" --> SP{"':' 바로 뒤가<br/>공백 한 칸?"}
+    SP -- "예" --> STRIP["그 공백 한 칸 제거<br/>(값의 일부가 아님)"]
+    SP -- "아니오" --> KEEP["값 그대로"]
+    STRIP --> FN{"필드명"}
+    KEEP --> FN
+    FN -- "data" --> A["data 버퍼에 값 + '\n' 추가"]
+    FN -- "event / id / retry" --> M["메타 갱신"]
+    FN -- "그 외" --> IGN["무시"]
+
+    subgraph EX1["예 1: data: 서버가"]
+        X1["':' 뒤 = ' ' → 제거"] --> X2["값 = '서버가' (공백 손실)"]
+    end
+    subgraph EX2["예 2: data:{#quot;t#quot;:#quot; 서버가#quot;}"]
+        Y1["':' 뒤 = '{' → 제거 없음"] --> Y2["값 = JSON 전체 → t = ' 서버가'"]
+    end
+
+    STRIP -.-> EX1
+    KEEP -.-> EX2
+
+    style STRIP fill:#fee2e2,stroke:#ef4444
+    style KEEP fill:#dcfce7,stroke:#22c55e
+```
+
+`data:` 바로 뒤 글자 하나가 공백이냐 아니냐로 갈립니다. 토큰을 날것으로 넣으면 예 1, JSON으로 감싸면 예 2가 됩니다.
+
 ### 해결: 토큰을 JSON으로 감싼다
 
 ```java
@@ -624,6 +744,37 @@ UPSTREAM_PORT=8090 docker compose -f spring-sse-sample/docker/docker-compose.yml
 </figure>
 
 왜 gzip이 문제일까요. nginx의 gzip 필터는 deflate 출력을 자체 버퍼에 모읍니다. 그리고 **입력 버퍼에 flush 표시가 붙어 있을 때만** 모아둔 것을 내보냅니다. `proxy_buffering on`으로 들어온 업스트림 데이터에는 flush 표시가 없습니다. 그래서 gzip 필터는 스트림이 끝날 때까지(또는 gzip 버퍼가 찰 때까지) 아무것도 내보내지 않습니다. 앞에서 `proxy_buffering on`이 무해했던 이유와 정확히 반대 조건입니다.
+
+nginx 안에서 업스트림 청크가 클라이언트까지 가는 길을 그리면 이렇습니다. 갈림길이 두 번 있습니다.
+
+```mermaid
+flowchart TD
+    U["업스트림 (Spring)<br/>data: {...} 청크 도착"] --> PM["proxy 모듈"]
+    PM --> XA{"응답 헤더에<br/>X-Accel-Buffering: no ?"}
+    XA -- "예" --> OFF["버퍼링 off<br/>청크마다 flush 표시 ✔"]
+    XA -- "아니오" --> PB{"proxy_buffering"}
+    PB -- "off (8082)" --> OFF
+    PB -- "on (8081, 8083 기본값)" --> ON["proxy_buffers 에 저장<br/>flush 표시 없음 ✘"]
+
+    OFF --> GZ{"gzip 필터<br/>(gzip on + Accept-Encoding: gzip)"}
+    ON --> GZ
+
+    GZ -- "gzip off (8081, 8082)" --> OUT["클라이언트 소켓으로 전송"]
+    GZ -- "gzip on, flush ✔ (8083 + accel)" --> ZF["deflate 후 즉시 내보냄"] --> OUT
+    GZ -- "gzip on, flush ✘ (8083)" --> ZA["deflate 버퍼에 누적<br/>스트림 끝(또는 버퍼 만료)까지 보류"]
+    ZA -- "[DONE] 도착" --> OUT2["한꺼번에 전송"]
+
+    ON -. "클라이언트가 빠르면<br/>소켓 writable 시 바로 전송" .-> OUT
+
+    style ON fill:#fef3c7,stroke:#f59e0b
+    style ZA fill:#fee2e2,stroke:#ef4444
+    style OFF fill:#dcfce7,stroke:#22c55e
+    style ZF fill:#dcfce7,stroke:#22c55e
+```
+
+- 8081은 노란 상자(버퍼링 on)를 지나지만 gzip이 꺼져 있어 점선 경로로 바로 나갑니다. 그래서 로컬에서는 뭉치지 않았습니다.
+- 8083은 노란 상자를 지난 뒤 gzip 필터에서 flush 표시가 없어 빨간 상자에 갇힙니다. `[DONE]`이 와야 풀립니다.
+- `X-Accel-Buffering: no`는 첫 갈림길에서 초록 경로로 보내 버립니다. 그래서 8083이어도 gzip 필터가 청크마다 내보냅니다.
 
 정리하면 **"proxy_buffering on + gzip on"** 조합이 SSE를 죽입니다. 그리고 이 조합은 흔합니다. `gzip on`은 대부분의 nginx 템플릿에 기본으로 들어 있고, `gzip_types`에 `text/event-stream`이 없어도 `application/json`이 있다면 JSON 스트리밍 API에서 같은 일이 벌어집니다.
 
