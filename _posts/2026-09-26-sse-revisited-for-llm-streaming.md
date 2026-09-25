@@ -27,7 +27,7 @@ image:
 ## 시리즈 목차
 
 - **SSE, LLM 시대에 다시 보기 - (토큰이 한꺼번에 도착하는 이유)** ← 현재 글
-- Orca Router 앞에 LiteLLM 한 겹 끼우기 - (게이트웨이, 비용, 폴백) *(작성 예정)*
+- [Orca Router 앞에 LiteLLM 한 겹 끼우기 - (게이트웨이, 비용, 폴백)](/posts/litellm-gateway-in-front-of-orca-router)
 - "MCP는 결국 JSON이고 웹 통신이잖아"에 답하기 - (stdio와 Streamable HTTP) *(작성 예정)*
 - 게이트웨이 뒤에 MCP 서버 세우기 *(작성 예정)*
 - MCP 인증과 보안, 백엔드가 가장 잘 아는 자리 *(작성 예정)*
