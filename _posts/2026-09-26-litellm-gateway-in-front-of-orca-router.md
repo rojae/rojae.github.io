@@ -364,7 +364,19 @@ Free model capacity is limited right now. Retry shortly, or add credits for high
 more stable limits: https://www.orcarouter.ai/console/billing
 ```
 
-무료 티어의 분당 한도는 **모델별이 아니라 계정 단위**였습니다. DeepSeek 무료로 10번을 쓰면 GLM 무료도 같이 막힙니다. 그러니 무료 → 무료 폴백은 설정은 맞아도 효과가 없습니다.
+무료 티어의 분당 한도는 **모델별이 아니라 계정 단위**로 보였습니다. 추측으로 끝내기 싫어서 일일 한도가 초기화된 뒤 게이트웨이 없이 Orca Router에 직접 확인해 봤습니다. GLM 무료 모델만 10번 호출하고, DeepSeek 무료 모델을 처음으로 1번 호출했습니다.
+
+<figure style="text-align: center;">
+  <img
+    src="/assets/img/posts/2026-09-26-litellm-gateway-in-front-of-orca-router/cross-model-limit-terminal.png"
+    alt="GLM 무료 10회 뒤 DeepSeek 무료 첫 호출이 429"
+    style="border-radius: 8px;">
+  <figcaption style="margin-top: 0.5rem; font-size: 0.95rem; color: #666;">
+    DeepSeek 은 한 번도 안 불렀는데 첫 호출부터 429. 카운터가 모델이 아니라 계정에 붙어 있다
+  </figcaption>
+</figure>
+
+DeepSeek 무료 모델은 그 분에 한 번도 부르지 않았는데 첫 호출부터 429였습니다. 카운터는 계정에 하나입니다. DeepSeek 무료로 10번을 쓰면 GLM 무료도 같이 막히고, 그 반대도 같습니다. 그러니 무료 → 무료 폴백은 설정은 맞아도 효과가 없습니다.
 
 폴백이 의미가 있으려면 **한도를 따로 세는 대상**이어야 합니다. 무료 → 유료(같은 계정이라도 유료는 한도가 다름), 또는 다른 공급자입니다. 1편에서 Orca Router 문서가 "무료 모델은 폴백 체인의 대상으로 넣을 수 없다"고 한 것도 같은 맥락입니다.
 
