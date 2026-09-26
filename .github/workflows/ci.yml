@@ -53,6 +53,9 @@ jobs:
         run: bash tools/test.sh
 
       - name: Check posts
+        env:
+          # push: 직전 푸시 시점(여러 커밋을 한 번에 밀어도 전부 검사). PR: base 브랜치.
+          CHECK_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
         run: |
-          python3 tools/post-check.py --changed
+          python3 tools/post-check.py --changed --base "$CHECK_BASE"
           bash tools/tests/run-post-check-tests.sh
