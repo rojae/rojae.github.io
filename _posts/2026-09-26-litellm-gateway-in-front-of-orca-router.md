@@ -11,7 +11,7 @@ image:
 ---
 
 > 애플리케이션 코드는 base URL 한 줄만 바꾸고, 키 관리와 비용 집계와 폴백을 게이트웨이로 옮깁니다.
-> LiteLLM을 실제로 띄워 무료 모델의 429, 예산 초과, 포트 충돌까지 직접 부딪히며 정리해 둡니다.
+> LiteLLM을 실제로 띄워 무료 모델의 429와 예산 초과까지 직접 부딪히며 정리해 둡니다.
 
 ---
 
@@ -43,7 +43,6 @@ image:
 - 가상 키에 예산을 걸고 초과시키기, 스팬드 로그 읽기
 - 실패 1: `api_base`에 `/v1`을 빠뜨리면 두 번째 에러가 첫 번째와 다른 이유
 - 실패 2: 무료 모델이 429를 맞으면 다른 무료 모델로 폴백하면 되겠지, 라는 착각
-- 실패 3: 1편의 Spring 앱을 붙였더니 curl은 되는데 Java만 404를 받은 이유
 - Prometheus `/metrics`에 무엇이 찍히는지
 
 ---
@@ -130,7 +129,7 @@ services:
       interval: 3s
 ```
 
-`LITELLM_PORT`를 환경변수로 뺀 이유는 7번 절에서 나옵니다. 저는 그 이유를 실험 도중에 알게 됐습니다.
+호스트 포트는 `LITELLM_PORT`로 바꿀 수 있게 해 두었습니다. 4000은 다른 개발 도구와 자주 겹치는 포트입니다.
 
 ### config.yaml: 규칙 세 가지
 
@@ -431,61 +430,6 @@ SERVER_PORT=8090 ./gradlew :spring-sse-sample:bootRun
 
 앱은 이제 Orca Router 키를 모릅니다. 데모 페이지에서 전송을 눌렀습니다.
 
-### 실패 3: curl은 되는데 Java만 404
-
-<figure style="text-align: center;">
-  <img
-    src="/assets/img/posts/2026-09-26-litellm-gateway-in-front-of-orca-router/demo-via-gateway-404.png"
-    alt="Spring 앱이 게이트웨이에서 404 를 받은 화면"
-    style="border-radius: 8px; border: 1px solid #e5e7eb;">
-  <figcaption style="margin-top: 0.5rem; font-size: 0.95rem; color: #666;">
-    404 Not Found from POST http://localhost:4000/v1/chat/completions. 스크립트로는 방금까지 잘 되던 주소
-  </figcaption>
-</figure>
-
-같은 `localhost:4000`인데 curl 스크립트는 되고 Spring은 404입니다. 게이트웨이 로그에는 그 요청이 아예 없었습니다. 포트를 뒤져 봤습니다.
-
-```
-$ lsof -nP -iTCP:4000 -sTCP:LISTEN
-COMMAND    PID  ...  TYPE  ...  NAME
-ruby      6908  ...  IPv4  ...  TCP 127.0.0.1:4000 (LISTEN)   ← jekyll serve --livereload
-com.docke 9516  ...  IPv6  ...  TCP *:4000 (LISTEN)           ← LiteLLM 컨테이너 포트 매핑
-
-$ curl -s -o /dev/null -w '%{http_code}\n' "http://[::1]:4000/v1/models" -H "Authorization: Bearer $LITELLM_MASTER_KEY"
-200                                                            ← IPv6 는 LiteLLM
-$ curl -s -o /dev/null -w '%{http_code} %{content_type}\n' http://127.0.0.1:4000/v1/models
-404 text/html; charset=UTF-8                                   ← IPv4 는 Jekyll
-```
-
-블로그 미리보기용으로 띄워 둔 **Jekyll 개발 서버가 127.0.0.1:4000**을 먼저 잡고 있었습니다. Jekyll의 기본 포트도 4000, LiteLLM의 기본 포트도 4000입니다. Docker는 남은 IPv6 와일드카드(`*:4000`)에 매핑됐습니다.
-
-```mermaid
-flowchart LR
-    C["curl http://localhost:4000"] -- "::1 (IPv6) 먼저 시도" --> D["Docker → LiteLLM ✔"]
-    J["Java WebClient http://localhost:4000"] -- "127.0.0.1 (IPv4) 먼저 시도" --> R["ruby (Jekyll) → 404 HTML ✘"]
-
-    subgraph HOST["macOS 의 localhost 는 둘이다"]
-        D
-        R
-    end
-
-    style D fill:#dcfce7,stroke:#22c55e
-    style R fill:#fee2e2,stroke:#ef4444
-```
-
-`localhost`는 IPv4 `127.0.0.1`과 IPv6 `::1` 둘 다를 가리키고, 어느 쪽을 먼저 시도하는지는 런타임마다 다릅니다. curl은 IPv6로 갔고 Java는 IPv4로 갔습니다. 그래서 같은 주소가 다른 프로세스에 닿았습니다. 1편에서 8080 포트에 다른 서비스가 있어 8090으로 띄웠던 것과 정확히 같은 종류의 문제인데, 이번에는 한쪽 스택만 점유되어 있어서 증상이 "간헐적"으로 보였습니다.
-
-해결은 게이트웨이 포트를 옮기는 것입니다. Jekyll은 제 것이라 꺼도 되지만, 남의 프로세스일 수도 있으니 compose에 `LITELLM_PORT`를 뺐습니다.
-
-```bash
-LITELLM_PORT=4400 docker compose -f litellm-gateway-sample/docker-compose.yml up -d
-ORCA_BASE_URL=http://localhost:4400/v1 ... ./gradlew :spring-sse-sample:bootRun
-```
-
-> 게이트웨이를 붙였는데 일부 클라이언트만 이상한 응답을 받으면, 같은 포트를 IPv4와 IPv6에서 서로 다른 프로세스가 듣고 있는지 확인해 보세요. `lsof -nP -iTCP:<포트> -sTCP:LISTEN` 한 줄이면 됩니다.
-{: .prompt-tip }
-
-### 다시 전송
 
 <figure style="text-align: center;">
   <img
@@ -547,7 +491,6 @@ $ curl -sL http://localhost:4000/metrics | grep -E "^litellm_" | sed 's/{.*//' |
 | 예산 | `/key/info`의 `spend`는 몇 초 늦게 반영 |
 | 폴백 | 폴백 대상이 원본과 **같은 한도를 공유하는지** 먼저 확인 |
 | 쿨다운 | `allowed_fails`가 설정 실수를 429로 바꿔 보여 줄 수 있음. 첫 에러를 찾을 것 |
-| 포트 | 4000은 Jekyll 등과 겹침. IPv4/IPv6 이중 스택에서 한쪽만 점유되면 클라이언트마다 증상이 다름 |
 | 앱 | 앱은 게이트웨이 주소와 가상 키만 안다. 업스트림 키는 게이트웨이 환경변수에만 |
 
 ---
@@ -565,13 +508,12 @@ $ curl -sL http://localhost:4000/metrics | grep -E "^litellm_" | sed 's/{.*//' |
 
 ## 마치며
 
-2편에서는 1편의 앱을 한 줄도 고치지 않고 LiteLLM 뒤로 보냈습니다. 그 과정에서 세 번 넘어졌습니다.
+2편에서는 1편의 앱을 한 줄도 고치지 않고 LiteLLM 뒤로 보냈습니다. 그 과정에서 두 번 넘어졌습니다.
 
 - `/v1`을 빠뜨리면 404가 나고, 그다음부터는 쿨다운 때문에 429로 보입니다.
 - 무료 모델끼리의 폴백은 같은 한도를 나눠 쓰기 때문에 소용이 없었습니다.
-- 4000 포트를 Jekyll이 IPv4 쪽만 잡고 있어서 curl과 Java가 서로 다른 프로세스에 닿았습니다.
 
-세 가지 모두 게이트웨이 자체의 버그가 아니라, 게이트웨이가 **한 겹 더 생겼기 때문에** 새로 생긴 실패입니다. 층이 하나 늘면 확인할 곳도 하나 늡니다.
+두 가지 모두 게이트웨이 자체의 버그가 아니라, 게이트웨이가 **한 겹 더 생겼기 때문에** 새로 생긴 실패입니다. 층이 하나 늘면 확인할 곳도 하나 늡니다.
 
 다음 편에서는 방향을 바꿔 MCP로 갑니다. "MCP는 결국 JSON이고 웹 통신이잖아"라는 질문에, Spring AI로 만든 MCP 서버를 stdio와 Streamable HTTP 두 전송으로 띄우고 파이프에 JSON 한 줄을 직접 넣어 가며 답하겠습니다.
 
