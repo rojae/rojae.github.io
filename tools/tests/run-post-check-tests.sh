@@ -27,6 +27,7 @@ check "bold: 굵은 글씨·불릿 뒤 존댓말은 잡는다" 1 $ROOT/bold.md
 check "unclosed: 닫히지 않은 figure 는 실패" 1 $ROOT/unclosed.md
 check "nohero: 대표 이미지 없음은 단독 검사에서 통과(WARN)" 0 $ROOT/nohero.md
 check "nohero: --strict 에서는 실패"        1 --strict $ROOT/nohero.md
+check "polite: tone=polite 표시가 있으면 존댓말도 통과" 0 $ROOT/polite.md
 report "bad 에서 금지 어미 보고 (본문 18행)"    $ROOT/bad.md "금지 어미.*18행"
 report "bad 에서 prompt 위치 보고 (14행)"       $ROOT/bad.md "prompt.*14행"
 report "bad 에서 TODO 보고 (20행)"              $ROOT/bad.md "TODO.*20행"
@@ -34,6 +35,7 @@ report "bad 에서 mermaid 불일치 보고"           $ROOT/bad.md "mermaid"
 report "bad 에서 자리표시자 보고 (22행)"        $ROOT/bad.md "자리표시자.*22행"
 report "nohero 에서 WARN 으로 보고"             $ROOT/nohero.md "이미지 참조 존재.*WARN"
 report "unclosed 에서 닫히지 않음 보고"         $ROOT/unclosed.md "닫히지 않"
+report "polite 에서 어투 검사 생략 보고"          $ROOT/polite.md "어투.*생략.*polite"
 # --changed: 변경된 글이 없을 때
 R=$TMP/empty; mkdir -p $R && git -C $R init -q && git -C $R -c user.email=t@t -c user.name=t commit -q --allow-empty -m init
 out=$(python3 "$REPO/tools/post-check.py" --root $R --changed 2>&1); got=$?

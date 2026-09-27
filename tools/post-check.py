@@ -13,6 +13,7 @@
   - 금지 어미 검사에서 제외: 코드 블록, <figure> 블록, `*` 로 시작하는 대화 줄(`*A: "..."*`,
     인용문 안의 `> *...*` 포함), 줄 끝에 `<!-- post-check: ignore -->` 가 있는 줄.
     `**굵게**` 로 시작하는 줄과 `* 불릿` 은 제외되지 않는다.
+  - 파일 어디든 `<!-- post-check: tone=polite -->` 가 있으면 존댓말 설명체 글로 보고 금지 어미 검사를 생략한다.
   - 대표 이미지(image.path) 가 없으면 단독 검사에서는 WARN, --strict/--changed 에서는 FAIL.
   - 본문이 참조하는 이미지가 없으면 항상 FAIL.
 """
@@ -29,6 +30,7 @@ FENCE_RE = re.compile(r"^\s*```")
 PROMPT_RE = re.compile(r"^\{:\s*\.prompt-")
 DIALOG_RE = re.compile(r"^\*(?!\*)(?!\s)")   # 단일 * 로 시작하고 바로 글자가 오는 줄 (굵게·불릿 제외)
 IGNORE_MARK = "<!-- post-check: ignore -->"
+TONE_POLITE_RE = re.compile(r"<!--\s*post-check:\s*tone=polite\s*-->")
 
 
 def split_front_matter(text):
@@ -132,14 +134,17 @@ def check_file(path, root, strict):
     else:
         results.append(("이미지 참조 존재", "OK", f"{len(body_refs) + (1 if hero else 0)}개 확인"))
 
-    banned = []
-    for n, line in prose:
-        for ending in BANNED_ENDINGS:
-            if ending in line:
-                banned.append(f"{n}행: …{ending}")
-                break
-    results.append(("금지 어미 (반말 회고체)", "FAIL" if banned else "OK",
-                    "; ".join(banned[:5]) + (" 외" if len(banned) > 5 else "") if banned else "0건"))
+    if TONE_POLITE_RE.search(text):
+        results.append(("금지 어미 (반말 회고체)", "OK", "어투 검사 생략 (tone=polite: 존댓말 설명체 글)"))
+    else:
+        banned = []
+        for n, line in prose:
+            for ending in BANNED_ENDINGS:
+                if ending in line:
+                    banned.append(f"{n}행: …{ending}")
+                    break
+        results.append(("금지 어미 (반말 회고체)", "FAIL" if banned else "OK",
+                        "; ".join(banned[:5]) + (" 외" if len(banned) > 5 else "") if banned else "0건"))
 
     if unclosed:
         kind, at = unclosed
