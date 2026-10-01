@@ -63,6 +63,16 @@ brew의 `zcode`와 이름이 겹쳐서 `~/.local`에 깔았다. `~/.local/bin`�
 
 ---
 
+## **"참고로 적어 두는 두 가지"**
+
+**동의 없는 업로드.** 2026년 9월 중순, ZCode가 사용자 동의 없이 작업 폴더를 압축해 알리바바 클라우드 저장소(OSS)로 올리고 있었다는 사실이 알려졌다. 한 중국 개발자가 313MB짜리 압축 파일 업로드가 564번 실패한 기록을 찾았고, 그 파일에는 `.git` 히스토리까지 들어 있었다. 기본으로 켜져 있었고 끄는 설정은 없었다. Z.ai는 사과하고 3.14.0에서 이 기능을 뺐다. 이후 제3자 감사에서 해당 저장소에 남은 데이터가 없다고 확인받았다고 밝혔다.
+
+**오픈소스 공개.** 그 직후 Z.ai는 ZCode 소스를 Apache 2.0으로 [GitHub](https://github.com/zai-org/ZCode)에 공개했다. 데스크톱 클라이언트, 백엔드, Agent CLI 소스까지 들어 있다. 내가 빌드하다 멈춘 것도 이 레포다. 소스는 열렸지만 CLI 빌드본은 아직 배포하지 않는다.
+
+내가 쓴 버전은 3.14.4라 문제의 기능이 빠진 뒤다. 그래도 회사 코드가 있는 폴더에서 돌릴지는 한 번 더 생각해 볼 일이다.
+
+---
+
 ## **"느낀 점"**
 
 아쉬운 건 하나다. 코딩용 모델과 코딩 플랜까지 내놓았는데, 개발자가 하루 종일 붙어 있는 터미널용 공식 CLI가 없다.
@@ -73,3 +83,13 @@ brew의 `zcode`와 이름이 겹쳐서 `~/.local`에 깔았다. `~/.local/bin`�
 - 비공식 패키지는 설치 스크립트와 의존성부터 열어 본다.
 
 *공식 CLI가 나오면 이 글은 지워도 될 것 같다.*
+
+---
+
+## **"참고한 내용들"**
+
+- [zai-org/ZCode (GitHub)](https://github.com/zai-org/ZCode)
+- [zcode-app-cli (npmx)](https://npmx.dev/package/zcode-app-cli)
+- [Chinese AI firm Z.ai faces reputation hit after users spot unauthorised uploads (SCMP)](https://www.scmp.com/tech/tech-trends/article/3368159/chinese-ai-firm-zai-faces-reputation-hit-after-users-spot-unauthorised-uploads)
+- [Devs say Chinese AI company silently uploaded hundreds of megabytes of local workspace data (Tom's Hardware)](https://www.tomshardware.com/tech-industry/artificial-intelligence/devs-say-chinese-ai-company-silently-uploaded-hundreds-of-megabytes-of-local-workspace-data-z-ai-the-firm-behind-the-glm-models-didnt-ask-for-user-consent-and-made-564-attempts-to-exfiltrate-313mb-archive)
+- [Z.ai Open-Sources ZCode After Codebase Indexing Uploaded Local Repositories (aicybr)](https://aicybr.com/blog/zai-zcode-open-source-codebase-indexing-security)
