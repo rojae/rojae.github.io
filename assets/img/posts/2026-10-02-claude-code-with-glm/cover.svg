@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#111418"/>
+  <g font-family="-apple-system, 'Apple SD Gothic Neo', sans-serif">
+    <text x="600" y="120" fill="#e6edf3" font-size="44" font-weight="700" text-anchor="middle">Claude는 판단, GLM은 분량</text>
+    <rect x="120" y="190" width="400" height="300" rx="16" fill="#1b1f24" stroke="#d2a8ff"/>
+    <text x="320" y="250" fill="#d2a8ff" font-size="34" font-weight="700" text-anchor="middle">claude</text>
+    <text x="320" y="310" fill="#c9d1d9" font-size="24" text-anchor="middle">설계 · 코어 변경</text>
+    <text x="320" y="350" fill="#c9d1d9" font-size="24" text-anchor="middle">되돌리기 어려운 결정</text>
+    <rect x="680" y="190" width="400" height="300" rx="16" fill="#1b1f24" stroke="#3fb950"/>
+    <text x="880" y="250" fill="#3fb950" font-size="34" font-weight="700" text-anchor="middle">claude-glm ×4</text>
+    <text x="880" y="310" fill="#c9d1d9" font-size="24" text-anchor="middle">번역 · 문서화</text>
+    <text x="880" y="350" fill="#c9d1d9" font-size="24" text-anchor="middle">반복 작업 · 병렬</text>
+    <text x="600" y="350" fill="#8b949e" font-size="40" text-anchor="middle">→</text>
+    <text x="600" y="560" fill="#8b949e" font-size="26" font-family="Menlo, monospace" text-anchor="middle">CLAUDE.md → AGENTS.md</text>
+  </g>
+</svg>
