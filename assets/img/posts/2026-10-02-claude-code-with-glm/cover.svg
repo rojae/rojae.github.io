@@ -11,6 +11,6 @@
     <text x="880" y="310" fill="#c9d1d9" font-size="24" text-anchor="middle">번역 · 문서화</text>
     <text x="880" y="350" fill="#c9d1d9" font-size="24" text-anchor="middle">반복 작업 · 병렬</text>
     <text x="600" y="350" fill="#8b949e" font-size="40" text-anchor="middle">→</text>
-    <text x="600" y="560" fill="#8b949e" font-size="26" font-family="Menlo, monospace" text-anchor="middle">CLAUDE.md → AGENTS.md</text>
+    <text x="600" y="560" fill="#8b949e" font-size="26" font-family="Menlo, monospace" text-anchor="middle">규칙은 AGENTS.md 한 파일</text>
   </g>
 </svg>

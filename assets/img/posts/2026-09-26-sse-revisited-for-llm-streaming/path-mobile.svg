@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="924" viewBox="0 0 320 924" role="img" aria-labelledby="path-mobile-title path-mobile-desc"><title id="path-mobile-title">토큰이 브라우저까지 오는 길과 두 실패 지점</title><desc id="path-mobile-desc">위에서 아래로 Orca Router, Spring WebFlux 프록시(8090), nginx(8081~8083), 브라우저 EventSource 순서입니다. Spring 직접 연결까지는 토큰 121개가 20개 시점에 나뉘어 흘렀습니다. 원인 2는 gzip을 켠 8083에서 nginx gzip 필터가 flush 표시 없는 청크를 모아 둔 것(이번 응답은 끝까지 보류), 원인 1은 브라우저 파서가 data: 뒤 공백 한 칸을 버린 것입니다. 회색 점은 curl -N, stream_timing.py, 데모 페이지로 측정한 위치입니다.</desc><defs><marker id="path-mobile-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L8 5L1 9" fill="none" stroke="#285fbc" stroke-width="1.5"/></marker></defs><style>text{font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;letter-spacing:-.35px;fill:#192e42}.mono{font-family:Menlo,Consolas,monospace;letter-spacing:-.6px}</style><rect width="320" height="924" fill="#fff"/>
+<!-- node 1 -->
+<rect x="20" y="20" width="280" height="68" rx="6" fill="#fff" stroke="#192e42" stroke-width="1.5"/>
+<text x="160" y="50" font-size="19" font-weight="700" text-anchor="middle">Orca Router</text>
+<text x="160" y="75" font-size="17" font-weight="500" text-anchor="middle" style="fill:#52677c">업스트림 LLM</text>
+<path d="M34 88V164" fill="none" stroke="#285fbc" stroke-width="2.2" marker-end="url(#path-mobile-arrow-blue)"/>
+<circle cx="60" cy="120" r="4" fill="#52677c"/><text x="74" y="126" font-size="17" font-weight="500" style="fill:#52677c">측정 · <tspan class="mono">curl -N</tspan> 원문</text>
+<!-- node 2 -->
+<rect x="20" y="168" width="280" height="68" rx="6" fill="#fff" stroke="#192e42" stroke-width="1.5"/>
+<text x="160" y="198" font-size="19" font-weight="700" text-anchor="middle">Spring WebFlux</text>
+<text x="160" y="223" font-size="17" font-weight="500" text-anchor="middle" style="fill:#52677c">프록시 · 8090</text>
+<path d="M34 236V386" fill="none" stroke="#285fbc" stroke-width="2.2" marker-end="url(#path-mobile-arrow-blue)"/>
+<circle cx="60" cy="262" r="4" fill="#52677c"/><text x="74" y="268" font-size="17" font-weight="500" style="fill:#52677c">측정 · <tspan class="mono">curl -N</tspan></text>
+<circle cx="60" cy="288" r="4" fill="#52677c"/><text x="74" y="294" font-size="17" font-weight="500" style="fill:#52677c">측정 · <tspan class="mono">stream_timing.py</tspan></text>
+<path d="M60 314H300" fill="none" stroke="#157458" stroke-width="2"/>
+<text x="60" y="340" font-size="17" font-weight="700" style="fill:#157458">여기까지는 흐름</text>
+<text x="60" y="364" font-size="17" font-weight="500" style="fill:#52677c">토큰 121개 · 도착 시점 20개</text>
+<!-- node 3 -->
+<rect x="20" y="390" width="280" height="68" rx="6" fill="#fff" stroke="#192e42" stroke-width="1.5"/>
+<text x="160" y="420" font-size="19" font-weight="700" text-anchor="middle">nginx 1.27</text>
+<text x="160" y="445" font-size="17" font-weight="500" text-anchor="middle" style="fill:#52677c">8081~8083</text>
+<path d="M34 458V634" fill="none" stroke="#285fbc" stroke-width="2.2" marker-end="url(#path-mobile-arrow-blue)"/>
+<circle cx="60" cy="484" r="4" fill="#52677c"/><text x="74" y="490" font-size="17" font-weight="500" style="fill:#52677c">측정 · <tspan class="mono">stream_timing.py</tspan></text>
+<circle cx="70" cy="524" r="12" fill="#fff" stroke="#b33c42" stroke-width="2"/><text x="70" y="530" font-size="17" font-weight="700" text-anchor="middle" style="fill:#b33c42">2</text>
+<text x="92" y="530" font-size="18" font-weight="700" style="fill:#b33c42">원인 2 · gzip 필터</text>
+<text x="60" y="556" font-size="17" font-weight="600" style="fill:#b33c42">(gzip on · 8083)</text>
+<text x="60" y="582" font-size="17" font-weight="500">flush 표시 없는 청크를</text>
+<text x="60" y="606" font-size="17" font-weight="500">모아 둠(이번엔 끝까지)</text>
+<!-- node 4 -->
+<rect x="20" y="638" width="280" height="68" rx="6" fill="#fff" stroke="#192e42" stroke-width="1.5"/>
+<text x="160" y="668" font-size="19" font-weight="700" text-anchor="middle">브라우저</text>
+<text x="160" y="693" font-size="17" font-weight="500" text-anchor="middle" class="mono" style="fill:#52677c">EventSource</text>
+<circle cx="60" cy="732" r="4" fill="#52677c"/><text x="74" y="738" font-size="17" font-weight="500" style="fill:#52677c">측정 · 데모 페이지 타임라인</text>
+<circle cx="70" cy="772" r="12" fill="#fff" stroke="#b33c42" stroke-width="2"/><text x="70" y="778" font-size="17" font-weight="700" text-anchor="middle" style="fill:#b33c42">1</text>
+<text x="92" y="778" font-size="18" font-weight="700" style="fill:#b33c42">원인 1 · 파서</text>
+<text x="60" y="808" font-size="17" font-weight="500"><tspan class="mono">data:</tspan> 뒤 공백 한 칸을</text>
+<text x="60" y="832" font-size="17" font-weight="500">구분자로 보고 버림</text>
+<!-- takeaway -->
+<path d="M20 858H300" fill="none" stroke="#cdd8e3" stroke-width="1.5"/>
+<text x="20" y="888" font-size="18" font-weight="700">두 지점 모두 자기 규칙대로</text>
+<text x="20" y="914" font-size="18" font-weight="700">동작했을 뿐입니다.</text>
+</svg>

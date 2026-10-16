@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="890" viewBox="0 0 320 890" role="img" aria-labelledby="lanes-m-title lanes-m-desc"><title id="lanes-m-title">두 명령, 같은 프로그램, 한 규칙 파일</title><desc id="lanes-m-desc">claude 명령은 Claude Code를 기본 설정 그대로 실행해 Anthropic API로 요청합니다. claude-glm 명령은 같은 Claude Code를 ANTHROPIC_BASE_URL, ANTHROPIC_AUTH_TOKEN, ANTHROPIC_MODEL을 이 프로세스에만 설정해 실행하고 api.z.ai의 GLM 모델로 요청합니다. 두 명령 모두 같은 규칙을 읽습니다. 폴더에 CLAUDE.md가 있으면 그것만 읽고, 없으면 v2.1.277부터 AGENTS.md를 직접 읽습니다. CLAUDE.md는 @AGENTS.md import나 심볼릭 링크로 AGENTS.md를 가져올 수 있습니다. codex는 AGENTS.md를 직접 읽습니다. 두 명령 사이의 자동 위임은 AGENTS.md 규칙으로 막아 둡니다.</desc><defs><marker id="lanes-m-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L8 5L1 9" fill="none" stroke="#285fbc" stroke-width="1.5"/></marker><marker id="lanes-m-arrow-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L8 5L1 9" fill="none" stroke="#52677c" stroke-width="1.5"/></marker><style>text{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;letter-spacing:-.35px;fill:#192e42}.mono{font-family:Menlo,Consolas,monospace;letter-spacing:-.6px}.mut{fill:#52677c}.acc{fill:#285fbc}</style></defs>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="16" y="26" font-size="17" font-weight="600" class="mut">명령 두 개 · 사람이 실행</text>
+<rect x="16" y="40" width="110" height="44" rx="6" fill="#fff" stroke="#192e42" stroke-width="1.5"/>
+<text x="71" y="68" font-size="17" font-weight="700" text-anchor="middle" class="mono">claude</text>
+<rect x="158" y="40" width="146" height="44" rx="6" fill="#fff" stroke="#192e42" stroke-width="1.5"/>
+<text x="231" y="68" font-size="17" font-weight="700" text-anchor="middle" class="mono">claude-glm</text>
+<path d="M126 62H158" fill="none" stroke="#52677c" stroke-width="1.7" stroke-dasharray="5 4"/>
+<text x="151" y="110" font-size="17" font-weight="600" text-anchor="middle" class="mut">자동 위임 금지(규칙)</text>
+<rect x="16" y="136" width="288" height="230" rx="8" fill="#f6f9fd" stroke="#285fbc" stroke-width="1.5"/>
+<text x="151" y="161" font-size="17" font-weight="750" text-anchor="middle">Claude Code</text>
+<text x="151" y="184" font-size="17" font-weight="500" text-anchor="middle" class="mut">같은 프로그램</text>
+<path d="M71 84V192" fill="none" stroke="#285fbc" stroke-width="1.7" marker-end="url(#lanes-m-arrow)"/>
+<path d="M231 84V192" fill="none" stroke="#285fbc" stroke-width="1.7" marker-end="url(#lanes-m-arrow)"/>
+<rect x="24" y="196" width="94" height="48" rx="6" fill="#fff" stroke="#cdd8e3" stroke-width="1.5"/>
+<text x="71" y="226" font-size="17" font-weight="600" text-anchor="middle">기본 설정</text>
+<rect x="162" y="196" width="138" height="160" rx="6" fill="#edf3fd" stroke="#285fbc" stroke-width="1.5"/>
+<text x="172" y="220" font-size="17" font-weight="500" class="mono mut">ANTHROPIC_</text>
+<text x="172" y="242" font-size="17" font-weight="600" class="mono">BASE_URL</text>
+<text x="172" y="264" font-size="17" font-weight="600" class="mono">AUTH_TOKEN</text>
+<text x="172" y="286" font-size="17" font-weight="600" class="mono">MODEL</text>
+<text x="172" y="318" font-size="17" font-weight="650" class="acc">이 프로세스에만</text>
+<text x="172" y="341" font-size="17" font-weight="650" class="acc">설정</text>
+<path d="M71 244V382" fill="none" stroke="#285fbc" stroke-width="1.7" marker-end="url(#lanes-m-arrow)"/>
+<path d="M231 356V382" fill="none" stroke="#285fbc" stroke-width="1.7" marker-end="url(#lanes-m-arrow)"/>
+<rect x="16" y="386" width="110" height="60" rx="6" fill="#fff" stroke="#52677c" stroke-width="1.5"/>
+<text x="71" y="411" font-size="17" font-weight="700" text-anchor="middle">Anthropic</text>
+<text x="71" y="434" font-size="17" font-weight="700" text-anchor="middle">API</text>
+<rect x="171" y="386" width="120" height="60" rx="6" fill="#fff" stroke="#52677c" stroke-width="1.5"/>
+<text x="231" y="411" font-size="17" font-weight="700" text-anchor="middle" class="mono">api.z.ai</text>
+<text x="231" y="434" font-size="17" font-weight="500" text-anchor="middle" class="mut">GLM 모델</text>
+<path d="M16 472H304" fill="none" stroke="#cdd8e3" stroke-width="1.5"/>
+<path d="M148 366V520" fill="none" stroke="#52677c" stroke-width="1.7"/>
+<text x="16" y="500" font-size="17" font-weight="600" class="mut">규칙 파일</text>
+<text x="160" y="500" font-size="17" font-weight="500" class="mut">두 명령 모두 읽음</text>
+<path d="M148 520H81V556" fill="none" stroke="#52677c" stroke-width="1.7" marker-end="url(#lanes-m-arrow-g)"/>
+<path d="M148 520H239V556" fill="none" stroke="#52677c" stroke-width="1.7" marker-end="url(#lanes-m-arrow-g)"/>
+<text x="89" y="546" font-size="17" font-weight="500" class="mut">있으면</text>
+<text x="247" y="546" font-size="17" font-weight="500" class="mut">없으면</text>
+<rect x="16" y="560" width="130" height="80" rx="6" fill="#fff" stroke="#192e42" stroke-width="1.5"/>
+<text x="81" y="584" font-size="17" font-weight="700" text-anchor="middle" class="mono">CLAUDE.md</text>
+<text x="81" y="606" font-size="17" font-weight="500" text-anchor="middle" class="mut">AGENTS.md는</text>
+<text x="81" y="628" font-size="17" font-weight="500" text-anchor="middle" class="mut">자동으로 안 읽음</text>
+<path d="M146 588H170" fill="none" stroke="#52677c" stroke-width="1.7" marker-end="url(#lanes-m-arrow-g)"/>
+<rect x="174" y="560" width="130" height="56" rx="6" fill="#edf3fd" stroke="#285fbc" stroke-width="1.5"/>
+<text x="239" y="584" font-size="17" font-weight="700" text-anchor="middle" class="mono">AGENTS.md</text>
+<text x="239" y="606" font-size="17" font-weight="600" text-anchor="middle" class="acc">규칙 원본</text>
+<text x="16" y="666" font-size="17" font-weight="500" class="mut">→ <tspan class="mono">@AGENTS.md</tspan>를 넣었을 때</text>
+<path d="M146 722H239V620" fill="none" stroke="#52677c" stroke-width="1.7" marker-end="url(#lanes-m-arrow-g)"/>
+<text x="158" y="714" font-size="17" font-weight="500" class="mut">직접 읽음</text>
+<rect x="16" y="700" width="130" height="44" rx="6" fill="#fff" stroke="#192e42" stroke-width="1.5"/>
+<text x="81" y="728" font-size="17" font-weight="700" text-anchor="middle" class="mono">codex</text>
+<text x="16" y="790" font-size="17" font-weight="500" class="mut">AGENTS.md 직접 읽기: v2.1.277+</text>
+<text x="16" y="836" font-size="17" font-weight="500" class="mut">실선 = 실제 호출·읽기</text>
+<text x="16" y="862" font-size="17" font-weight="500" class="mut">점선 = 규칙으로 막은 연결</text>
+</svg>

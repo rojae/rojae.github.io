@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="972" viewBox="0 0 320 972" role="img" aria-labelledby="nginx-mobile-title nginx-mobile-desc"><title id="nginx-mobile-title">nginx 안의 두 갈림길: 버퍼링과 gzip 필터</title><desc id="nginx-mobile-desc">갈림길 1에서 응답 헤더에 X-Accel-Buffering: no가 있거나 proxy_buffering off(8082)면 버퍼링이 꺼지고 flush 표시가 붙습니다. proxy_buffering on(기본값)이면 버퍼에 저장되고 flush 표시가 없습니다. 갈림길 2인 gzip 필터는 gzip on이고 클라이언트가 Accept-Encoding: gzip을 보낼 때만 거치며, 표시가 있으면 즉시 내보내고(8083에 X-Accel 헤더, 도착 시점 22개), 없으면 출력 버퍼가 찰 때까지 보류합니다. 이번 응답은 끝까지 보류됐습니다(8083, 도착 시점 1개). gzip off인 8081과 8082는 이 필터를 거치지 않았습니다.</desc><defs><marker id="nginx-mobile-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L8 5L1 9" fill="none" stroke="#285fbc" stroke-width="1.5"/></marker></defs><style>text{font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;letter-spacing:-.35px;fill:#192e42}.mono{font-family:Menlo,Consolas,monospace;letter-spacing:-.6px}</style><rect width="320" height="972" fill="#fff"/>
+<text x="20" y="30" font-size="17" font-weight="700" style="fill:#285fbc">갈림길 1 · 버퍼링</text>
+<rect x="20" y="44" width="280" height="46" rx="6" fill="#fff" stroke="#192e42" stroke-width="1.5"/>
+<text x="160" y="73" font-size="17" font-weight="650" text-anchor="middle">Spring 응답 청크 도착</text>
+<path d="M160 90V120" fill="none" stroke="#285fbc" stroke-width="2" marker-end="url(#nginx-mobile-arrow-blue)"/>
+<rect x="20" y="124" width="280" height="66" rx="6" fill="#edf3fd" stroke="#285fbc" stroke-width="1.5"/>
+<text x="160" y="151" font-size="17" font-weight="600" text-anchor="middle">응답 헤더에</text>
+<text x="160" y="177" font-size="17" font-weight="600" text-anchor="middle" class="mono">X-Accel-Buffering: no ?</text>
+<path d="M160 190V230" fill="none" stroke="#285fbc" stroke-width="2" marker-end="url(#nginx-mobile-arrow-blue)"/>
+<text x="170" y="216" font-size="17" font-weight="700" style="fill:#285fbc">없음</text>
+<path d="M20 157H8V322H50V352" fill="none" stroke="#285fbc" stroke-width="2" marker-end="url(#nginx-mobile-arrow-blue)"/>
+<text x="16" y="216" font-size="17" font-weight="700" style="fill:#285fbc">있음</text>
+<rect x="20" y="234" width="280" height="46" rx="6" fill="#edf3fd" stroke="#285fbc" stroke-width="1.5"/>
+<text x="160" y="263" font-size="17" font-weight="600" text-anchor="middle" class="mono">proxy_buffering</text>
+<path d="M100 280V352" fill="none" stroke="#285fbc" stroke-width="2" marker-end="url(#nginx-mobile-arrow-blue)"/>
+<text x="108" y="304" font-size="17" font-weight="600" style="fill:#285fbc">off · 8082</text>
+<path d="M235 280V352" fill="none" stroke="#285fbc" stroke-width="2" marker-end="url(#nginx-mobile-arrow-blue)"/>
+<text x="227" y="336" font-size="17" font-weight="600" text-anchor="end" style="fill:#285fbc">on · 기본값</text>
+<rect x="20" y="356" width="130" height="90" rx="6" fill="#e4f2eb" stroke="#157458" stroke-width="1.5"/>
+<text x="85" y="384" font-size="17" font-weight="700" text-anchor="middle" style="fill:#157458">버퍼링 off</text>
+<text x="85" y="410" font-size="17" font-weight="500" text-anchor="middle">flush</text>
+<text x="85" y="433" font-size="17" font-weight="500" text-anchor="middle">표시 있음</text>
+<rect x="170" y="356" width="130" height="90" rx="6" fill="#fdf2e9" stroke="#96501c" stroke-width="1.5"/>
+<text x="235" y="384" font-size="17" font-weight="700" text-anchor="middle" style="fill:#96501c">버퍼에 저장</text>
+<text x="235" y="410" font-size="17" font-weight="500" text-anchor="middle">flush</text>
+<text x="235" y="433" font-size="17" font-weight="500" text-anchor="middle">표시 없음</text>
+<path d="M235 446V476" fill="none" stroke="#285fbc" stroke-width="2" marker-end="url(#nginx-mobile-arrow-blue)"/>
+<path d="M85 446V476" fill="none" stroke="#285fbc" stroke-width="2" marker-end="url(#nginx-mobile-arrow-blue)"/>
+<rect x="20" y="480" width="280" height="116" rx="6" fill="#edf3fd" stroke="#285fbc" stroke-width="1.5"/>
+<text x="160" y="508" font-size="17" font-weight="700" text-anchor="middle" style="fill:#285fbc">갈림길 2 · gzip 필터</text>
+<text x="160" y="534" font-size="17" font-weight="500" text-anchor="middle">gzip on이고 클라이언트가</text>
+<text x="160" y="558" font-size="17" font-weight="500" text-anchor="middle"><tspan class="mono">Accept-Encoding: gzip</tspan>을</text>
+<text x="160" y="582" font-size="17" font-weight="500" text-anchor="middle">보낼 때만 거침</text>
+<path d="M85 596V632" fill="none" stroke="#285fbc" stroke-width="2" marker-end="url(#nginx-mobile-arrow-blue)"/>
+<path d="M235 596V632" fill="none" stroke="#285fbc" stroke-width="2" marker-end="url(#nginx-mobile-arrow-blue)"/>
+<rect x="20" y="636" width="130" height="140" rx="6" fill="#fff" stroke="#157458" stroke-width="2"/>
+<text x="85" y="666" font-size="18" font-weight="700" text-anchor="middle" style="fill:#157458">즉시 내보냄</text>
+<text x="85" y="694" font-size="17" font-weight="500" text-anchor="middle" style="fill:#52677c">8083 +</text>
+<text x="85" y="716" font-size="17" font-weight="500" text-anchor="middle" style="fill:#52677c">X-Accel 헤더</text>
+<text x="85" y="758" font-size="17" font-weight="600" text-anchor="middle">시점 22개</text>
+<rect x="170" y="636" width="130" height="140" rx="6" fill="#fbeef0" stroke="#b33c42" stroke-width="2"/>
+<text x="235" y="666" font-size="18" font-weight="700" text-anchor="middle" style="fill:#b33c42">버퍼가 찰</text>
+<text x="235" y="690" font-size="18" font-weight="700" text-anchor="middle" style="fill:#b33c42">때까지 보류</text>
+<text x="235" y="716" font-size="17" font-weight="500" text-anchor="middle" style="fill:#52677c">8083</text>
+<text x="235" y="738" font-size="17" font-weight="500" text-anchor="middle" style="fill:#52677c">이번엔 끝까지</text>
+<text x="235" y="762" font-size="17" font-weight="600" text-anchor="middle">시점 1개</text>
+<path d="M20 800H300" fill="none" stroke="#cdd8e3" stroke-width="1.5"/>
+<text x="20" y="830" font-size="17" font-weight="700" style="fill:#52677c">gzip off인 8081 · 8082는</text>
+<text x="20" y="854" font-size="17" font-weight="700" style="fill:#52677c">갈림길 2를 거치지 않습니다.</text>
+<text x="20" y="880" font-size="17" font-weight="500" style="fill:#52677c">8082는 도착 시점 29개.</text>
+<text x="20" y="904" font-size="17" font-weight="500" style="fill:#52677c">8081은 버퍼링 on이어도</text>
+<text x="20" y="928" font-size="17" font-weight="500" style="fill:#52677c">빠른 로컬 클라이언트라</text>
+<text x="20" y="952" font-size="17" font-weight="500" style="fill:#52677c">바로 나가 28개였습니다.</text>
+</svg>

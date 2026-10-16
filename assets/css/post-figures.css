@@ -1,0 +1,287 @@
+/* Shared figure styles for posts. Scoped to .content so it does not touch other layouts.
+   Colors come from the Chirpy theme variables so light/dark mode stay consistent. */
+
+.content figure.post-figure {
+  margin: 1.8rem 0 2.1rem;
+  padding: 0;
+}
+
+.content figure.post-figure > img,
+.content figure.post-figure > a > img,
+.content figure.post-figure > picture > img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  border-radius: 8px;
+  border: 1px solid var(--main-border-color);
+  background: var(--card-bg);
+}
+
+.content figure.post-figure figcaption {
+  margin-top: 0.7rem;
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: var(--text-muted-color);
+  text-align: left;
+  word-break: keep-all;
+}
+
+.content figure.post-figure figcaption strong {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+/* Relationship drawings: a framed SVG with a wide and a narrow version.
+   The narrow version is chosen by the width of the figure container, not the viewport,
+   because the sidebar and the TOC column reduce the article width. */
+
+.content figure.post-figure--diagram {
+  container: post-diagram / inline-size;
+  border: 1px solid var(--main-border-color);
+  border-radius: 8px;
+  background: #fff;
+  overflow: visible;
+  scroll-margin-top: 90px;
+}
+
+.content figure.post-figure--diagram .figure-head {
+  display: block;
+  padding: 1.2rem 1.4rem 0.6rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  font-weight: 700;
+  color: #192e42;
+  word-break: keep-all;
+}
+
+.content figure.post-figure--diagram .figure-head small {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #285fbc;
+}
+
+.content figure.post-figure--diagram picture,
+.content figure.post-figure--diagram picture > img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+}
+
+.content figure.post-figure--diagram figcaption {
+  margin: 0;
+  padding: 0.9rem 1.4rem 1.2rem;
+  border-top: 1px solid var(--main-border-color);
+  font-size: 0.87rem;
+  line-height: 1.75;
+  color: var(--text-muted-color);
+}
+
+/* Keep the frame readable in dark mode: the drawing itself stays on white paper,
+   so the frame uses a neutral light border and the heading keeps its dark ink. */
+html[data-mode="dark"] .content figure.post-figure--diagram {
+  border-color: #3f5066;
+}
+
+html[data-mode="dark"] .content figure.post-figure--diagram figcaption {
+  border-top-color: #cdd8e3;
+  background: #fff;
+  color: #52677c;
+}
+
+html[data-mode="dark"] .content figure.post-figure--diagram figcaption a {
+  color: #285fbc;
+}
+
+.content figure.post-figure--diagram .diagram-source {
+  display: block;
+  width: fit-content;
+  margin-top: 0.5rem;
+  padding: 0.55rem 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.content figure.post-figure--diagram .diagram-narrow {
+  display: none;
+}
+
+@container post-diagram (max-width: 620px) {
+  .content figure.post-figure--diagram .diagram-wide {
+    display: none;
+  }
+
+  .content figure.post-figure--diagram picture.diagram-narrow {
+    display: block;
+    max-width: 390px;
+    margin-inline: auto;
+  }
+
+  .content figure.post-figure--diagram a.diagram-narrow {
+    display: block;
+  }
+}
+
+@media (max-width: 600px) {
+  .content figure.post-figure--diagram .figure-head {
+    padding: 1rem 1rem 0.5rem;
+    font-size: 1rem;
+  }
+
+  .content figure.post-figure--diagram figcaption {
+    padding: 0.8rem 1rem 1rem;
+  }
+}
+
+/* Two-column comparison of the same input with different outcomes. Stacks on narrow widths. */
+.content .post-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.4rem 0 1.8rem;
+}
+
+.content .post-compare > div {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--main-border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.content .post-compare > div > strong:first-child {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.content .post-compare pre,
+.content .post-compare .highlight {
+  margin-bottom: 0.6rem;
+}
+
+@media (max-width: 600px) {
+  .content .post-compare {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content figure.post-figure * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Tables: the theme keeps cells on one line and scrolls the whole table sideways,
+   which hides the right-hand column on phones. Let cells wrap at word boundaries instead.
+   The wrapper keeps overflow-x as a fallback for very wide tables. */
+.content .table-wrapper > table {
+  width: 100%;
+}
+
+.content .table-wrapper > table th,
+.content .table-wrapper > table td {
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  vertical-align: top;
+  line-height: 1.65;
+}
+
+.content .table-wrapper > table td code,
+.content .table-wrapper > table th code {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* Wide reference tables (4+ columns) are allowed to break long tokens anywhere
+   so the whole table stays inside the column; narrow tables keep short tokens whole. */
+.content .table-wrapper > table tr:has(> td:nth-child(4)) code,
+.content .table-wrapper > table tr:has(> th:nth-child(4)) ~ tr code {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 575px) {
+  .content .table-wrapper > table th,
+  .content .table-wrapper > table td {
+    padding: 0.6rem 0.55rem;
+    font-size: 0.92rem;
+  }
+
+}
+
+/* Mermaid: keep the drawing at a readable size and scroll it inside its own box
+   instead of shrinking the whole diagram to fit a phone screen. */
+.content .mermaid {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.content .mermaid > svg {
+  min-width: 640px;
+  height: auto;
+}
+
+.content .mermaid.is-scrollable {
+  position: relative;
+  padding-bottom: 1.6rem;
+  outline-offset: 4px;
+}
+
+.content .mermaid.is-scrollable::after {
+  content: "옆으로 밀어서 전체 보기 →";
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--text-muted-color);
+  pointer-events: none;
+}
+
+.content .mermaid.is-scrollable:focus-visible {
+  outline: 2px solid var(--link-color);
+}
+
+/* Tables that still overflow on narrow screens get the same scroll hint as diagrams. */
+.content .table-wrapper.is-scrollable {
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.content .table-wrapper.is-scrollable::after {
+  content: "옆으로 밀어서 전체 보기 →";
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.1rem;
+  font-size: 0.78rem;
+  color: var(--text-muted-color);
+  pointer-events: none;
+}
+
+.content .table-wrapper.is-scrollable:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+/* Visible keyboard focus for links and figure controls inside the article. */
+.content a:focus-visible,
+.content summary:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.content .code-header button:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}

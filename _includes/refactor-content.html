@@ -57,6 +57,13 @@
     {% assign _left = _img_snippet | split: '>' | first %}
     {% assign _right = _img_snippet | remove: _left %}
 
+    <!-- Keep authored picture/source/img siblings intact. Paths and loading
+         attributes are supplied by the author for these opt-in images. -->
+    {% if _left contains 'data-preserve-picture="true"' %}
+      {% assign _img_content = _img_content | append: IMG_TAG | append: _img_snippet %}
+      {% continue %}
+    {% endif %}
+
     {% unless _left contains 'src=' %}
       {% continue %}
     {% endunless %}

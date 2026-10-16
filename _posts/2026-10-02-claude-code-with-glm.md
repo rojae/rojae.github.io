@@ -8,43 +8,33 @@ tags: [claude-code, glm, zai, agents-md, codex, llm]
 image:
   path: /assets/img/posts/2026-10-02-claude-code-with-glm/cover.svg
 ---
-> Claude Code는 그대로 두고, `claude-glm` 명령 하나를 더 만들어 GLM에 번역·문서화 같은 분량 작업을 맡기는 방법입니다. 명령은 전부 복사해서 그대로 붙이면 됩니다. 규칙은 `AGENTS.md` 한 파일에 적어 Claude Code와 Codex가 같이 읽게 합니다.
+> 기존 `claude` 설정은 건드리지 않고 GLM으로 답하는 명령을 하나 더 만듭니다. 명령 블록은 복사해서 그대로 붙이면 됩니다.
 > + 터미널용 zcode 설치는 [zcode cli 사용기](/posts/zcode-cli-review)에 따로 적었습니다.
 {: .prompt-info }
 <!-- post-check: tone=polite -->
-
----
 
 ## 왜 나눠 쓰나요
 
 영문 문서 40개를 한글로 맞추는 일이 있다고 해 보겠습니다. 어려운 일은 아닙니다. 그냥 많습니다. 이걸 Claude에 맡기면 설계나 디버깅에 써야 할 사용량이 번역에 들어갑니다.
 
-그래서 일을 둘로 나눕니다. **판단이 필요한 일은 Claude**, **분량이 많은 일은 GLM**에 맡깁니다.
+그래서 일을 둘로 나눕니다. **판단이 필요한 일은 Claude**, **분량이 많은 일은 GLM**에 맡깁니다. GLM은 코딩 플랜 정액으로 돌리고, 한↔영 문서 맞추기·Javadoc 달기·README 정리처럼 판단이 적은 일을 파일 단위로 쪼개 여러 개를 동시에 넘깁니다.
 
-| 장점 | 무엇이 좋아지나 |
-|------|-----------------|
-| 비용 절감 | Claude 사용량을 설계·디버깅에 아낍니다. GLM은 코딩 플랜 정액으로 돌립니다 |
-| 속도 | 파일 단위로 쪼개 여러 개를 동시에 돌립니다. 하나씩 기다리지 않습니다 |
-| 번역·문서화 병렬화 | 한↔영 문서 맞추기, Javadoc 달기, README 정리처럼 판단이 적은 일을 한꺼번에 넘깁니다 |
-| 기존 환경 유지 | `claude`는 그대로 Anthropic을 씁니다. 스킬·설정·단축키도 그대로입니다 |
-
-> **쉽게 말하면** Claude는 **설계 담당 선임**이고, GLM은 **분량을 나눠 받는 동료 여럿**입니다. 선임이 번역까지 혼자 하면 설계가 밀립니다.
-{: .prompt-tip }
-
----
+이 글을 끝까지 따라 하면 이런 상태가 됩니다. **`claude`는 그대로 Anthropic이 답하고, `claude-glm`은 같은 화면에서 GLM이 답합니다. 무엇을 넘길지는 `AGENTS.md` 한 파일에 적혀 있고, 문서 3개를 동시에 번역해 파일 크기와 첫 줄로, Javadoc은 `git diff`로 결과를 확인합니다.**
 
 ## 어떻게 붙나요
 
 Z.AI는 Anthropic과 같은 형식의 API 주소(`https://api.z.ai/api/anthropic`)를 제공합니다. Claude Code는 환경변수로 API 주소와 모델 이름을 바꿀 수 있습니다. 그래서 **프로그램은 Claude Code 그대로, 뒤에서 답하는 모델만 GLM**이 됩니다.
 
-공식 문서는 `~/.claude/settings.json`에 넣으라고 안내합니다. 그러면 `claude`가 전부 GLM으로 바뀝니다. 저는 둘 다 쓰고 싶어서 **명령을 하나 더 만듭니다.**
+공식 문서는 `~/.claude/settings.json`에 넣으라고 안내합니다. 그러면 `claude`가 전부 GLM으로 바뀝니다. 저는 둘 다 쓰고 싶어서 **명령을 하나 더 만들고, 환경변수는 그 명령이 띄우는 프로세스에만 설정합니다.** 아래 그림이 이 글을 마쳤을 때의 구성입니다.
 
-| 명령 | 뒤에서 답하는 모델 |
-|------|-------------------|
-| `claude` | Anthropic (그대로) |
-| `claude-glm` | GLM (`glm-5.3`, 가벼운 일은 `glm-5.3-flash`) |
+<figure class="post-figure post-figure--diagram" id="figure-lanes" aria-labelledby="lanes-caption">
+  <div class="figure-head"><small>01 · 구성</small>두 명령은 같은 프로그램이고, 규칙 파일은 하나입니다</div>
+  <picture class="diagram-wide"><img data-preserve-picture="true" src="/assets/img/posts/2026-10-02-claude-code-with-glm/lanes-desktop.svg" alt="claude는 Claude Code를 기본 설정 그대로 실행해 Anthropic API로, claude-glm은 같은 Claude Code를 ANTHROPIC_BASE_URL·AUTH_TOKEN·MODEL을 이 프로세스에만 설정해 실행해 api.z.ai로 요청합니다. 두 명령 모두 같은 규칙을 읽습니다. 폴더에 CLAUDE.md가 있으면 그것만, 없으면 v2.1.277부터 AGENTS.md를 직접 읽고, CLAUDE.md는 @AGENTS.md import나 링크로 AGENTS.md를 가져올 수 있습니다. codex는 AGENTS.md를 직접 읽습니다. 두 명령 사이의 자동 위임은 AGENTS.md 규칙으로 막아 둡니다." width="700" height="576" loading="lazy"></picture>
+  <picture class="diagram-narrow"><img data-preserve-picture="true" src="/assets/img/posts/2026-10-02-claude-code-with-glm/lanes-mobile.svg" alt="claude는 Claude Code를 기본 설정 그대로 실행해 Anthropic API로, claude-glm은 같은 Claude Code를 ANTHROPIC_BASE_URL·AUTH_TOKEN·MODEL을 이 프로세스에만 설정해 실행해 api.z.ai로 요청합니다. 두 명령 모두 같은 규칙을 읽습니다. 폴더에 CLAUDE.md가 있으면 그것만, 없으면 v2.1.277부터 AGENTS.md를 직접 읽고, CLAUDE.md는 @AGENTS.md import나 링크로 AGENTS.md를 가져올 수 있습니다. codex는 AGENTS.md를 직접 읽습니다. 두 명령 사이의 자동 위임은 AGENTS.md 규칙으로 막아 둡니다." width="320" height="890" loading="lazy"></picture>
+  <figcaption id="lanes-caption">위쪽은 요청이 나가는 길, 아래쪽은 규칙을 읽는 길입니다. 환경변수는 대표 세 개만 적었고 전체 목록은 글 끝에 있습니다. <a class="diagram-source diagram-wide" href="/assets/img/posts/2026-10-02-claude-code-with-glm/lanes-desktop.svg" target="_blank" rel="noopener">그림 원본 보기 ↗</a><a class="diagram-source diagram-narrow" href="/assets/img/posts/2026-10-02-claude-code-with-glm/lanes-mobile.svg" target="_blank" rel="noopener">그림 원본 보기 ↗</a></figcaption>
+</figure>
 
----
+`claude-glm`의 기본 모델은 `glm-5.3`, 가벼운 내부 호출은 `glm-5.3-flash`입니다. Claude Code가 어느 규칙 파일을 읽는지와 위임을 사람이 하는 이유는 4단계에서 다룹니다.
 
 ## 환경
 
@@ -54,9 +44,7 @@ Z.AI는 Anthropic과 같은 형식의 API 주소(`https://api.z.ai/api/anthropic
 | Claude Code | 2.1.285 |
 | Z.AI | GLM 코딩 플랜, API 키 1개 |
 | 확인한 모델 | `glm-4.5-flash` (무료). `glm-5.3` 은 같은 스크립트, 이름만 다름 |
-| 전제 | `~/.local/bin` 이 `PATH`에 있음 |
-
----
+| 전제 | Claude Code 설치·로그인, `git`, 코딩 플랜 활성(기본 모델 `glm-5.3`), `~/.local/bin` 이 `PATH`에 있음 |
 
 ## 순서대로
 
@@ -75,8 +63,7 @@ security find-generic-password -a zai -s zai-api-key -w >/dev/null && echo saved
 # saved
 ```
 
-> **쉽게 말하면** 키체인은 **맥에 붙은 금고**입니다. 스크립트는 금고에서 키를 꺼내 쓰고, 파일에는 아무것도 남기지 않습니다.
-{: .prompt-tip }
+`saved`가 나오지 않으면 키가 저장되지 않은 것이니 1단계를 다시 실행합니다. 스크립트는 실행할 때마다 키체인에서 키를 꺼내 쓰므로 키가 파일에 남지 않습니다.
 
 ### 2. `claude-glm` 명령 만들기
 
@@ -124,7 +111,7 @@ which claude-glm
 # /Users/<you>/.local/bin/claude-glm
 ```
 
-`claude-glm not found`가 나오면 `~/.local/bin`이 `PATH`에 없는 것입니다.
+`claude-glm not found`(실행하면 `zsh: command not found: claude-glm`)가 나오면 `~/.local/bin`이 `PATH`에 없는 것입니다.
 
 ```bash
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
@@ -145,21 +132,15 @@ claude-glm -p "Reply with exactly: OK"
 # OK
 ```
 
-테스트가 끝나면 `unset GLM_MAIN GLM_FAST` 한 줄로 기본 모델(`glm-5.3`)로 돌아갑니다. 저는 19초 걸렸습니다. `OK` 위에 `"glm-5.3" isn't described by this version's model catalog` 경고가 같이 나올 수 있습니다. 아래 함정 절에서 다룹니다. 동작에는 문제가 없습니다.
+이 한 줄 응답은 제 환경에서 19초 걸렸습니다. 이 `export`는 5단계 확인까지 마친 뒤에 풉니다. `OK` 위에 모델 이름이 들어간 `"…" isn't described by this version's model catalog` 경고가 같이 나올 수 있습니다. 아래 함정 절에서 다룹니다. 동작에는 문제가 없습니다.
 
 대화형으로 쓰려면 그냥 `claude-glm`만 치면 됩니다. 화면, 스킬, 슬래시 명령이 `claude`와 같습니다.
 
-### 4. 규칙은 `AGENTS.md`에, `CLAUDE.md`는 링크로
+### 4. 규칙은 `AGENTS.md` 한 파일에
 
-어떤 일을 GLM에 넘길지는 에이전트가 읽는 규칙 파일에 적어 둡니다. 여기서 한 가지를 정리하고 가겠습니다.
+어떤 일을 GLM에 넘길지는 에이전트가 읽는 규칙 파일에 적어 둡니다. Codex는 `AGENTS.md`를 읽습니다. Claude Code는 v2.1.277부터, 작업 폴더와 그 위에 `CLAUDE.md`나 `CLAUDE.local.md`가 없으면 `AGENTS.md`를 직접 읽습니다. 그래서 **규칙은 `AGENTS.md` 하나에 쓰면 두 에이전트가 같은 파일을 읽습니다.**
 
-- Claude Code는 `CLAUDE.md`를 읽습니다.
-- Codex 같은 다른 에이전트는 `AGENTS.md`를 읽습니다.
-
-두 파일을 따로 두면 언젠가 내용이 갈라집니다. 그래서 **규칙은 `AGENTS.md` 하나에 쓰고, `CLAUDE.md`는 그 파일을 가리키는 링크로** 둡니다.
-
-> **쉽게 말하면** 심볼릭 링크는 **바로가기 아이콘**입니다. `CLAUDE.md`를 열면 실제로는 `AGENTS.md`가 열립니다. 고칠 곳이 한 군데뿐입니다.
-{: .prompt-tip }
+단, `CLAUDE.md`가 있으면 Claude Code는 기본값에서 `CLAUDE.md`만 읽고 `AGENTS.md`는 건너뜁니다. 이미 `CLAUDE.md`가 있는 프로젝트는 아래 "기존 `CLAUDE.md`가 있을 때"를 따릅니다.
 
 처음에는 빈 연습 폴더에서 해 보는 것을 권합니다. 5단계까지 이 폴더에서 이어집니다.
 
@@ -205,12 +186,32 @@ z.ai(GLM)는 사람이 직접 호출한다. 다른 에이전트가 자동으로 
 
 API 키는 macOS 키체인에 있다 (`-a zai -s zai-api-key`). 설정 파일·커밋·대화에 키를 노출하지 않는다.
 EOF
-ln -s AGENTS.md CLAUDE.md 2>/dev/null || echo "CLAUDE.md 가 이미 있습니다. 내용을 AGENTS.md 로 옮기고 지운 뒤 이 줄만 다시 실행하세요."
 ```
 
-실제 프로젝트에 적용할 때 이미 `CLAUDE.md`가 있다면, 그 내용을 `AGENTS.md`로 옮긴 뒤 지우고 링크를 겁니다.
+`cat >>`는 이어 붙이기라 이 블록을 두 번 실행하면 규칙이 두 번 쌓입니다. 다시 붙이려면 `AGENTS.md`를 먼저 지웁니다.
 
-확인:
+확인: 연습 폴더에서 `claude`를 대화형으로 띄우고 `/context`를 입력합니다. **Memory files** 목록에 `AGENTS.md`가 보이면 Claude Code가 규칙을 읽은 것입니다. 보이지 않으면 `claude --version`이 2.1.277 이상인지, 이 폴더나 그 위에 `CLAUDE.md`·`.claude/CLAUDE.md`·`CLAUDE.local.md`가 있는지부터 봅니다. 업그레이드 직후 첫 세션이면 `AGENTS.md`를 다음 세션부터 읽을 수 있으니 한 번 더 띄워 봅니다.
+
+#### 기존 `CLAUDE.md`가 있을 때
+
+규칙은 `AGENTS.md`로 옮기고, `CLAUDE.md`가 `AGENTS.md`를 가져오게 합니다. 공식 문서가 권하는 방법은 `CLAUDE.md` 맨 위에 import 한 줄을 두는 것입니다. Claude 전용 지시는 그 아래에 이어 적습니다. import나 아래의 링크를 쓴 경우 `/context`의 Memory files에는 `AGENTS.md`가 아니라 `CLAUDE.md`가 보입니다.
+
+```markdown
+@AGENTS.md
+
+## Claude Code 전용
+
+(여기에 Claude에게만 줄 지시)
+```
+
+Claude 전용 내용이 없으면 심볼릭 링크도 됩니다. 저는 이 글을 쓸 때(Claude Code 2.1.285) 이 방식으로 확인했습니다. 링크를 쓰면 Claude의 Edit·Write 도구로 링크를 통해 쓰는 것은 거부되고, Claude는 안내에 따라 원본인 `AGENTS.md`를 고칩니다. 기존 `CLAUDE.md`의 내용을 `AGENTS.md`로 옮기고 지운 뒤 실행합니다.
+
+```bash
+ln -s AGENTS.md CLAUDE.md 2>/dev/null ||
+  echo "CLAUDE.md 가 이미 있습니다. 내용을 AGENTS.md 로 옮기고 지운 뒤 이 줄만 다시 실행하세요."
+```
+
+당시 링크를 건 상태에서 아래처럼 물어 확인했습니다. 질문에 `AGENTS.md`를 적었기 때문에 Claude가 파일을 직접 열어 답했을 수도 있어, 규칙이 자동으로 읽혔는지까지 가르는 확인은 아닙니다. 지금은 위의 `/context` 확인을 씁니다. 이 질문은 `claude`로 돌리므로 Anthropic 사용량을 씁니다.
 
 ```bash
 ls -l CLAUDE.md
@@ -220,9 +221,11 @@ claude -p "AGENTS.md 기준으로, 영문 문서 40개 번역은 누구에게 �
 # 위임은 자동이 아니라 사람이 호출하도록 정해 두었습니다. ...
 ```
 
-📌 마지막 줄의 "자동으로 넘기지 않는다"가 중요합니다. Claude가 알아서 GLM을 부르면 무엇이 어디로 나갔는지 사람이 모릅니다. 넘기는 결정은 사람이 합니다.
+📌 규칙의 "자동으로 넘기지 않는다"가 중요합니다. Claude가 알아서 GLM을 부르면 무엇이 어디로 나갔는지 사람이 모릅니다. 넘기는 결정은 사람이 합니다. 다만 이것은 규칙일 뿐 시스템이 막는 것은 아닙니다. 강제하려면 프로젝트의 `.claude/settings.json`에서 `permissions.deny`에 `"Bash(claude-glm *)"` 규칙을 둘 수 있습니다.
 
 ### 5. 여러 개를 동시에 넘기기
+
+같은 터미널에서 이어 갑니다. 3단계의 `GLM_MAIN`이 살아 있어야 하니, 새 터미널이면 3단계의 `export`를 다시 실행합니다.
 
 여기가 이 글의 핵심입니다. `claude-glm -p`는 표준 입력으로 문서를 받고, 결과를 표준 출력으로 내보냅니다. 그래서 `xargs -P`로 몇 개를 동시에 돌릴지 정할 수 있습니다.
 
@@ -252,40 +255,58 @@ git add -A && git -c user.name=demo -c user.email=demo@example.com commit -qm in
 mkdir -p docs/en
 ls docs/ko/*.md | xargs -P 4 -I{} sh -c '
   claude-glm -p "Translate this Markdown document to English. Keep code blocks and links as they are. Output only the translated document." \
-    < "{}" > "docs/en/$(basename "{}")"
-'
+    < "$1" > "docs/en/$(basename "$1")"
+' _ {}
 ```
 
-**문서화**: 파일마다 public 메서드에 Javadoc을 답니다. 이번에는 파일을 고쳐야 하니 쓸 수 있는 도구를 `Read`, `Edit`로만 열어 줍니다.
+파일 이름은 `{}`를 스크립트 안에 넣지 않고 `$1`로 넘깁니다. macOS의 BSD xargs는 `{}`가 든 인자를 255바이트로 제한해서, 스크립트 안에 넣으면 프롬프트를 조금만 늘려도 실패합니다.
+
+**문서화**: 파일마다 public 메서드에 Javadoc을 답니다. 이번에는 파일을 고쳐야 하니 `--allowedTools`로 `Read`·`Edit`를 묻지 않고 허용합니다(헤드리스 `-p`에서는 승인을 받을 수 없는 쓰기 도구가 거부됩니다. 사용자 설정에서 더 허용해 둔 도구가 있으면 그것도 쓰입니다. 도구를 이 둘로 제한하려면 `--tools "Read,Edit"`를 씁니다). 파일을 읽고 고치는 왕복이 있어 몇 분 걸릴 수 있고, 끝날 때까지 출력이 없는 것이 정상입니다.
 
 ```bash
-find src/main/java -name '*.java' | xargs -P 4 -I{} \
-  claude-glm -p "{} 의 public 메서드에 한국어 Javadoc 을 달아 줘. 코드 동작은 바꾸지 마." \
+find src/main/java -name '*.java' | xargs -P 4 -I{} sh -c '
+  claude-glm -p "$1 의 public 메서드에 한국어 Javadoc 을 달아 줘. 코드 동작은 바꾸지 마." \
     --allowedTools "Read" "Edit"
+' _ {}
 ```
 
-> **쉽게 말하면** `xargs -P 4`는 **계산대를 4개 여는 것**입니다. 손님(파일)은 비어 있는 계산대로 갑니다. 너무 많이 열면 아래 함정 절의 사용량 한도에 걸립니다.
-{: .prompt-tip }
-
-확인:
+번역 확인:
 
 ```bash
 ls docs/ko | wc -l; ls docs/en | wc -l
 # 3
 # 3
-git diff --stat
-# src/main/java/demo/Calc.java | 20 ++++++++++++++++++++
+wc -c docs/en/*.md
+head -3 docs/en/install.md
+git status --short docs/en
 ```
 
-제가 무료 모델로 돌렸을 때 번역은 문서 3개가 동시에 19초 만에 끝났고, 코드 블록과 링크도 그대로 남았습니다. Javadoc은 파일 하나에 3분 가까이 걸렸습니다. 파일을 읽고 고치는 왕복이 있어서 번역보다 느립니다. 그래서 동시에 돌리는 효과가 큽니다.
+개수만으로는 성공을 가를 수 없습니다. `> docs/en/...` 리다이렉션은 명령이 실패해도 파일을 먼저 만들기 때문입니다. `wc -c`에 0바이트 파일이 없고 `head -3`에 영어 제목이 보이면 성공입니다. 빈 파일이 있으면 `rm docs/en/*` 후 3단계 확인부터 다시 합니다. `docs/en/`은 아직 커밋하지 않은 새 파일이라 `git diff`에는 보이지 않고 `git status --short docs/en`에 나옵니다.
 
-개수가 같고, `git diff`에 의도한 파일만 바뀌었으면 됩니다. 결과는 마지막에 `claude`(Anthropic)로 한 번 훑어보게 하면 안심이 됩니다.
+Javadoc 확인:
 
----
+```bash
+git diff --stat
+# src/main/java/demo/Calc.java | 20 ++++++++++++++++++++
+git diff
+```
 
-## zcode는 언제 쓰나요
+`--stat`의 줄 수는 모델마다 다릅니다. `git diff`에서 `add`, `div` 위에 `/**` 주석이 생겼고 메서드 본문은 그대로이면 성공입니다.
 
-`zcode`는 Z.AI가 만든 별도 에이전트입니다. PPT·엑셀·PDF처럼 결과물이 문서 파일인 일에 씁니다. 공식 터미널 CLI가 없어서 비공식 패키지로 씁니다. 설치는 [zcode cli 사용기](/posts/zcode-cli-review)를 참고하시면 됩니다.
+제가 무료 모델로 돌렸을 때 번역은 문서 3개가 동시에 19초 만에 끝났고, 코드 블록과 링크도 그대로 남았습니다. Javadoc은 파일 하나에 3분 가까이 걸렸습니다. 파일을 읽고 고치는 왕복이 있어서 번역보다 느립니다. 그래서 파일이 여럿이면 동시에 돌리는 효과가 큽니다. `-P` 값을 너무 키우면 아래 함정 절의 사용량 한도에 빨리 닿습니다.
+
+결과는 마지막에 `claude`(Anthropic)로 한 번 훑어보게 하면 안심이 됩니다. 확인까지 끝났으면 `unset GLM_MAIN GLM_FAST`로 기본 모델(`glm-5.3`)로 돌아갑니다.
+
+## 어떤 일을 넘기나요
+
+제 기준으로는 4단계 규칙의 "넘길 것" 가운데서도 결과를 사람이 바로 확인할 수 있는 일을 넘깁니다. 5단계처럼 파일 개수·크기·`git diff`로 맞는지 볼 수 있는 번역과 문서화가 그렇고, 설계 판단이나 되돌리기 어려운 결정은 `claude`에 남깁니다. 사람이 시작하고 결과를 확인하는 `xargs` 배치와 사람이 없는 자동화 파이프라인도 저는 다르게 봅니다. 규칙의 "자동화 파이프라인의 부품"은 뒤쪽으로 읽습니다.
+
+> 개인정보나 비밀값이 섞인 코드는 GLM에 넘기지 않습니다. Z.AI는 제3자 처리자입니다. zcode에 동의 없는 업로드 이력이 있었던 일도 [zcode cli 사용기](/posts/zcode-cli-review)에 적어 두었습니다.
+{: .prompt-warning }
+
+## zcode는 언제 쓰나요 (선택 사항)
+
+zcode를 설치한 경우에만 해당합니다. `zcode`는 Z.AI가 만든 별도 에이전트입니다. PPT·엑셀·PDF처럼 결과물이 문서 파일인 일에 씁니다. 공식 터미널 CLI가 없어서 비공식 패키지로 씁니다. 설치는 [zcode cli 사용기](/posts/zcode-cli-review)를 참고하시면 됩니다.
 
 ```bash
 zcode -p "README.md 를 읽고 발표용 5장 요약을 만들어 줘" --disallowed-tools "Bash Write Edit"
@@ -295,11 +316,9 @@ zcode에는 모델을 고르는 옵션이 없어서 코딩 플랜 모델로만 �
 
 📌 제가 써 본 바로는 `--disallowed-tools "Bash Write Edit"`가 실제로 막히는 유일한 경계였습니다. 쓰기를 열어 주면 격리되지 않습니다. Bash를 막았는데도 홈 디렉터리에 pip 설치를 했습니다. 쓰기 작업은 전용 worktree 안에서만 시킵니다.
 
----
-
 ## 빠지기 쉬운 함정
 
-### `"glm-5.3" isn't described by this version's model catalog`
+### 모델 이름이 들어간 `… isn't described by this version's model catalog` 경고
 
 Claude Code가 모르는 모델 이름이라 문맥 창(context window)을 200k로 가정하겠다는 경고입니다. → 동작에는 지장이 없습니다. 긴 대화에서 자동 요약이 일찍 걸릴 수 있다는 정도만 알아 두면 됩니다.
 
@@ -327,16 +346,15 @@ GLM_MAIN=glm-4.5-flash GLM_FAST=glm-4.5-flash claude-glm -p "Reply with exactly:
 
 ### 셸에 `ANTHROPIC_API_KEY`가 남아 있음
 
-이 값이 있으면 Claude Code가 그쪽 키를 먼저 쓰려고 합니다. → 스크립트에서 `ANTHROPIC_API_KEY=`로 비워 두었습니다.
+이 값이 남아 있으면 Anthropic 키가 `x-api-key` 헤더로 api.z.ai에 함께 전송될 수 있습니다. → 그래서 스크립트에서 `ANTHROPIC_API_KEY=`로 비워 둡니다.
+
+### `~/.claude/settings.json`의 `env`에 `ANTHROPIC_*`가 있음
+
+공식 안내대로 `settings.json`의 `env`에 Z.AI 값을 넣어 둔 적이 있다면, 대부분의 세션에서 그 값이 셸 환경변수보다 우선합니다. 그러면 `claude`도 GLM으로 돌거나, `claude-glm`이 넘긴 값이 무시될 수 있습니다. → `env` 블록의 `ANTHROPIC_*` 항목을 지웁니다.
 
 ### Codex에도 붙이고 싶을 때
 
 2026-10-01 기준으로 Codex 0.159.3에서는 안 됩니다. Codex는 커스텀 공급자에 `wire_api = "responses"`만 받는데, Z.AI는 Responses API를 제공하지 않습니다. → 변환 프록시 없이는 불가능해서 Codex는 GPT로 둡니다. 대신 Codex도 `AGENTS.md`의 레인 규칙은 같이 읽습니다.
-
-> 개인정보나 비밀값이 섞인 코드는 GLM에 넘기지 않습니다. Z.AI는 제3자 처리자입니다. zcode에 동의 없는 업로드 이력이 있었던 일도 [zcode cli 사용기](/posts/zcode-cli-review)에 적어 두었습니다.
-{: .prompt-warning }
-
----
 
 ## 되돌리기
 
@@ -345,34 +363,36 @@ unset GLM_MAIN GLM_FAST
 rm -rf ~/glm-playground
 rm ~/.local/bin/claude-glm
 security delete-generic-password -a zai -s zai-api-key
+rmdir ~/.local/bin 2>/dev/null
 ```
 
-실제 프로젝트에서 `CLAUDE.md` 링크를 풀고 Claude 전용 파일로 되돌리려면, 그 프로젝트 루트에서 따로 실행합니다.
+`rmdir`는 `~/.local/bin`이 비어 있을 때만 지웁니다. 2단계에서 `~/.zshrc`에 PATH 줄을 추가했다면 그 줄(`export PATH="$HOME/.local/bin:$PATH"`)도 지웁니다.
+
+링크를 걸었던 실제 프로젝트에서 `CLAUDE.md` 링크를 풀고 Claude 전용 파일로 되돌리려면, 그 프로젝트 루트에서 따로 실행합니다.
 
 ```bash
 rm CLAUDE.md && mv AGENTS.md CLAUDE.md
 ```
 
-`claude`는 처음부터 건드리지 않았으니 되돌릴 것이 없습니다.
+원래 Codex용 `AGENTS.md`가 따로 있던 프로젝트에서는 이 `mv`가 그 파일을 없앱니다. Codex 규칙을 먼저 따로 보관한 뒤 실행합니다.
 
----
+`claude`는 처음부터 건드리지 않았으니 되돌릴 것이 없습니다.
 
 ## 참고한 내용들
 
 ### 스크립트가 바꾸는 환경변수
 
-| 변수 | 값 | 의미 |
-|------|----|------|
-| `ANTHROPIC_BASE_URL` | `https://api.z.ai/api/anthropic` | 요청을 보낼 주소 |
-| `ANTHROPIC_AUTH_TOKEN` | 키체인의 Z.AI 키 | 인증 헤더 |
-| `ANTHROPIC_MODEL` | `glm-5.3` | 기본 모델 |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` / `_SONNET_MODEL` | `glm-5.3` | Claude Code가 opus·sonnet을 부를 때 대신 쓸 모델 |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL` | `glm-5.3-flash` | 가벼운 내부 호출용 |
-| `ANTHROPIC_API_KEY` | (빈 값) | 셸에 남은 Anthropic 키가 끼어들지 않게 |
+- `ANTHROPIC_BASE_URL` → `https://api.z.ai/api/anthropic`: 요청을 보낼 주소
+- `ANTHROPIC_AUTH_TOKEN` → 키체인의 Z.AI 키: 인증 헤더
+- `ANTHROPIC_MODEL` → `glm-5.3`: 기본 모델
+- `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` → `glm-5.3`: Claude Code가 opus·sonnet을 부를 때 대신 쓸 모델
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL` → `glm-5.3-flash`: 가벼운 내부 호출용 (`ANTHROPIC_SMALL_FAST_MODEL`은 구버전 호환용이고, 지금은 HAIKU 변수가 대신합니다)
+- `ANTHROPIC_API_KEY` → (빈 값): 셸에 남은 Anthropic 키가 끼어들지 않게
 
 ### Reference Links
 
 - [Z.AI: Claude Code에서 GLM 쓰기](https://docs.z.ai/devpack/tool/claude)
-- [Claude Code: 환경변수](https://docs.anthropic.com/en/docs/claude-code/settings#environment-variables)
+- [Claude Code: 환경변수](https://code.claude.com/docs/en/env-vars)
+- [Claude Code: CLAUDE.md와 AGENTS.md](https://code.claude.com/docs/en/memory)
 - [AGENTS.md](https://agents.md/)
 - [zcode cli 사용기 - (공식이 없어, 비공식 cli 사용)](/posts/zcode-cli-review)

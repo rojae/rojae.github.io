@@ -14,7 +14,7 @@ script_includes:
 
 {% include toc-status.html %}
 
-<article class="px-1" data-toc="{{ enable_toc }}">
+<article class="px-1{% if page.editorial %} editorial-post{% endif %}" data-toc="{{ enable_toc }}">
   <header>
     <h1 data-toc-skip>{{ page.title }}</h1>
     {% if page.description %}
@@ -36,7 +36,7 @@ script_includes:
         </span>
       {% endif %}
 
-      {% if page.image %}
+      {% if page.image and page.image.hidden != true %}
         {% capture src %}src="{{ page.image.path | default: page.image }}"{% endcapture %}
         {% capture class %}class="preview-img{% if page.image.no_bg %}{{ ' no-bg' }}{% endif %}"{% endcapture %}
         {% capture alt %}alt="{{ page.image.alt | xml_escape | default: "Preview Image" }}"{% endcapture %}
@@ -177,6 +177,58 @@ script_includes:
   </div>
   <!-- div.post-tail-wrapper -->
 </article>
+
+<script>
+  /* Keep Mermaid text readable: let wide diagrams scroll inside their box
+     instead of shrinking the whole drawing to the column width. */
+  (function () {
+    function fit(svg) {
+      var vb = (svg.getAttribute('viewBox') || '').split(/\s+/);
+      var w = parseFloat(vb[2]);
+      if (!w) return;
+      var t = svg.querySelector('text, tspan');
+      var fs = t ? parseFloat(getComputedStyle(t).fontSize) : 16;
+      if (!fs) fs = 16;
+      var min = Math.min(w, Math.ceil(w * 14 / fs));
+      svg.style.minWidth = min + 'px';
+      var box = svg.parentElement;
+      if (box && box.classList.contains('mermaid')) {
+        var overflow = min > box.clientWidth + 2;
+        box.classList.toggle('is-scrollable', overflow);
+        if (overflow) {
+          box.setAttribute('tabindex', '0');
+          box.setAttribute('role', 'region');
+          box.setAttribute('aria-label', '가로로 스크롤할 수 있는 다이어그램');
+        } else {
+          box.removeAttribute('tabindex'); box.removeAttribute('role'); box.removeAttribute('aria-label');
+        }
+      }
+    }
+    function markTables() {
+      document.querySelectorAll('.content .table-wrapper').forEach(function (w) {
+        var overflow = w.scrollWidth > w.clientWidth + 2;
+        w.classList.toggle('is-scrollable', overflow);
+        if (overflow) {
+          w.setAttribute('tabindex', '0');
+          w.setAttribute('role', 'region');
+          if (!w.getAttribute('aria-label')) w.setAttribute('aria-label', '가로로 스크롤할 수 있는 표');
+        } else if (w.getAttribute('aria-label') === '가로로 스크롤할 수 있는 표') {
+          w.removeAttribute('tabindex'); w.removeAttribute('role'); w.removeAttribute('aria-label');
+        }
+      });
+    }
+    function scan() {
+      document.querySelectorAll('.mermaid > svg').forEach(fit);
+      markTables();
+    }
+    if (window.MutationObserver) {
+      new MutationObserver(scan).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-processed'] });
+    }
+    window.addEventListener('load', scan);
+    window.addEventListener('resize', scan);
+    scan();
+  })();
+</script>
 
 <script src="https://utteranc.es/client.js"
         repo="rojae/rojae.github.io"

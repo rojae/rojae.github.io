@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc"><title id="title">꼬리에 꼬리를 무는 질문</title><desc id="desc">LLM 통신 스택 4편 커버. 1편에서는 nginx gzip이 토큰을 끝에 모았고, 2편에서는 같은 키의 무료 모델이 한도를 나눠 썼으며(1회 관찰), 3편에서는 stdout에 로그가 섞여도 Connected였습니다. 세 장면에서 이어진 질문을 따라갑니다.</desc><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto-start-reverse"><path d="M1 1L6 4L1 7" fill="none" stroke="#285fbc" stroke-width="1.4"/></marker><style>text{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;letter-spacing:-.4px;fill:#192e42}.mono{font-family:Menlo,Consolas,monospace;letter-spacing:-.6px}</style></defs>
+<rect width="100%" height="100%" fill="#fff"/>
+<rect x="0" y="0" width="12" height="630" fill="#285fbc"/>
+<text x="72" y="88" font-size="30" font-weight="650" style="fill:#285fbc">LLM 통신 스택 · 4편</text>
+<text x="72" y="170" font-size="68" font-weight="800">꼬리에 꼬리를 무는 질문</text>
+<text x="72" y="228" font-size="30" font-weight="500" style="fill:#52677c">SSE · 게이트웨이 · MCP를 한 줄로 꿰는 심화 문답</text>
+<rect x="72" y="282" width="320" height="212" rx="12" fill="#f6f9fd" stroke="#cdd8e3" stroke-width="2"/>
+<text x="98" y="330" font-size="28" font-weight="750" style="fill:#285fbc">1편 · SSE</text>
+<text x="98" y="384" font-size="26" font-weight="500">nginx gzip이</text>
+<text x="98" y="422" font-size="26" font-weight="500">토큰을 끝에</text>
+<text x="98" y="460" font-size="26" font-weight="500">모았다</text>
+<path d="M398 388L438 388" fill="none" stroke="#285fbc" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="440" y="282" width="320" height="212" rx="12" fill="#f6f9fd" stroke="#cdd8e3" stroke-width="2"/>
+<text x="466" y="330" font-size="28" font-weight="750" style="fill:#285fbc">2편 · 게이트웨이</text>
+<text x="466" y="384" font-size="26" font-weight="500">같은 키의 무료 모델이</text>
+<text x="466" y="422" font-size="26" font-weight="500">한도를 나눠 썼다</text>
+<text x="466" y="460" font-size="26" font-weight="500" style="fill:#52677c">(1회 관찰)</text>
+<path d="M766 388L806 388" fill="none" stroke="#285fbc" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="808" y="282" width="320" height="212" rx="12" fill="#f6f9fd" stroke="#cdd8e3" stroke-width="2"/>
+<text x="834" y="330" font-size="28" font-weight="750" style="fill:#285fbc">3편 · MCP</text>
+<text x="834" y="384" font-size="26" font-weight="500">stdout에 로그가</text>
+<text x="834" y="422" font-size="26" font-weight="500">섞여도 Connected</text>
+<text x="72" y="578" font-size="28" font-weight="500" style="fill:#52677c">세 장면에서 접어 둔 질문을, 답 하나에 다음 질문 하나씩 따라갑니다</text>
+</svg>
