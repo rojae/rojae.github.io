@@ -29,8 +29,6 @@ image:
 
 개인 오픈소스 FluxGate에서 Redis Lua를 선택한 이유가 이 동시 요청의 원자성이었습니다. 그런데 함께 묶을 대상이 버킷 하나에서 여러 제한, 여러 Redis 슬롯으로 늘어나면 질문이 달라집니다. 한 실행 범위는 어디까지 닿을까요? 닿지 않는 곳에서는 거절과 실패 뒤에 무엇이 남을까요? 차감은 끝났는데 응답을 못 받았다면 다시 실행해도 될까요?
 
-이 글은 개인 오픈소스와 사내 POC의 설계를 설명합니다. 공개 버전 `v0.3.7`과, 공개 버전과 별도로 작업 중인 장기 지원 브랜치(LTS)를 구분합니다. LTS 소스는 확인한 커밋 `d2b771a`에 고정했습니다. 상용 운영 성과나 성능 측정은 다루지 않습니다. 구현 근거는 마지막에 모았습니다.
-
 ## 확인과 차감을 한 실행 범위에 둡니다
 
 토큰 버킷은 정해진 속도로 토큰을 채우고, 요청마다 필요한 양을 쓰는 제한 방식입니다. 여러 앱 서버가 같은 제한을 적용하려면 공유된 잔여량을 기준으로 판단해야 합니다.
@@ -97,7 +95,7 @@ FluxGate는 Redis 위에 별도 락을 두는 방식(락 소유자·만료 시�
   <div class="figure-head"><small>02 · 멀티밴드</small>같은 거절, 다른 흔적</div>
   <picture class="diagram-wide"><img data-preserve-picture="true" src="/assets/img/posts/2026-10-17-fluxgate-lua-atomicity-and-failure-boundaries/bands-desktop.svg" alt="분당 밴드가 소진된 요청 하나가 거절될 때, 공개 v0.3.7은 앞서 차감한 초당 밴드를 N-1로 남깁니다. LTS는 한 실행 범위에서 두 밴드를 토큰 차감 없이 먼저 검사하므로 거절 뒤 두 밴드가 그대로 남습니다." width="700" height="498" loading="lazy"></picture>
   <picture class="diagram-narrow"><img data-preserve-picture="true" src="/assets/img/posts/2026-10-17-fluxgate-lua-atomicity-and-failure-boundaries/bands-mobile.svg" alt="분당 밴드가 소진된 요청 하나가 거절될 때, 공개 v0.3.7은 앞서 차감한 초당 밴드를 N-1로 남깁니다. LTS는 한 실행 범위에서 두 밴드를 토큰 차감 없이 먼저 검사하므로 거절 뒤 두 밴드가 그대로 남습니다." width="320" height="930" loading="lazy"></picture>
-  <figcaption id="bands-caption">위는 공개 <code>v0.3.7</code>에서 밴드가 초당 → 분당 순서로 설정됐을 때, 아래는 LTS 커밋 <code>d2b771a</code>의 처리입니다. N은 설명용 값입니다. 여러 규칙이 다른 슬롯에 걸친 경우는 다음 절에서 다룹니다. <a class="diagram-source diagram-wide" href="/assets/img/posts/2026-10-17-fluxgate-lua-atomicity-and-failure-boundaries/bands-desktop.svg" target="_blank" rel="noopener">그림 원본 보기 ↗</a><a class="diagram-source diagram-narrow" href="/assets/img/posts/2026-10-17-fluxgate-lua-atomicity-and-failure-boundaries/bands-mobile.svg" target="_blank" rel="noopener">그림 원본 보기 ↗</a></figcaption>
+  <figcaption id="bands-caption">위는 공개 <code>v0.3.7</code>에서 밴드가 초당 → 분당 순서로 설정됐을 때, 아래는 LTS 예정 (1.0.0)의 처리입니다. N은 설명용 값입니다. 여러 규칙이 다른 슬롯에 걸친 경우는 다음 절에서 다룹니다. <a class="diagram-source diagram-wide" href="/assets/img/posts/2026-10-17-fluxgate-lua-atomicity-and-failure-boundaries/bands-desktop.svg" target="_blank" rel="noopener">그림 원본 보기 ↗</a><a class="diagram-source diagram-narrow" href="/assets/img/posts/2026-10-17-fluxgate-lua-atomicity-and-failure-boundaries/bands-mobile.svg" target="_blank" rel="noopener">그림 원본 보기 ↗</a></figcaption>
 </figure>
 
 공개 `v0.3.7`은 Java에서 밴드를 설정된 순서대로 소비합니다. 밴드마다 차감을 시도하고 거절된 밴드에서 바로 반환하므로, 밴드가 초당 → 분당 순서로 설정됐다면 요청은 최종 거절됐지만 초당 밴드의 토큰은 이미 줄어 있습니다. 검사와 차감이 밴드 단위로 끝나기 때문에, 뒤 밴드의 거절이 앞 밴드의 차감을 되돌리지 못합니다.
